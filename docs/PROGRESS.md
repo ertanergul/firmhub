@@ -7,17 +7,17 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 1 — Foundation |
-| Last approved task | 1.1 Baseline Validation (2026-10-30) |
-| Current task | 1.2 Project Documentation & Identity |
-| Next task | 1.3 Frontend Toolchain Remediation |
+| Last approved task | 1.2 Project Documentation & Identity (2026-10-30) |
+| Current task | 1.3 Frontend Toolchain Remediation |
+| Next task | 1.4 CI & Dependency Automation |
 
 ## Phase 1 tasks
 
 | Task | Name | Status | Commit |
 |---|---|---|---|
 | 1.1 | Baseline Validation | Approved | — (validation only) |
-| 1.2 | Project Documentation & Identity | In review | — |
-| 1.3 | Frontend Toolchain Remediation | Not started | — |
+| 1.2 | Project Documentation & Identity | Approved | `0d0a041` (PR #3) |
+| 1.3 | Frontend Toolchain Remediation | In review | — |
 | 1.4 | CI & Dependency Automation | Not started | — |
 | 1.5 | Test Foundation | Not started | — |
 | 1.6 | Authentication Hardening | Not started | — |
@@ -67,6 +67,16 @@ All versions match [0.8 §1](phase-0/0.8-technology-and-infrastructure-decisions
 | F-1 | `phpunit.xml` `DB_HOST=127.0.0.1` breaks `sail artisan test` inside the container (works in CI and from the host) | Fix in a later Phase 1 task (1.4 or 1.5) with approval; workaround documented in the [README](../README.md#known-issue-tests-inside-sail) |
 | F-2 | `livewire/livewire` 4.4.7 — `#[Authorize]` bypass, GHSA-mhf7-xp6r-6qrc (medium, fixed in 4.4.8). The project does not use `#[Authorize]` or `#[Json]` | Patch update with approval (task 1.4 or a separate task before Phase 2) |
 | F-3 | `symfony/mime` 7.4.19 — CVE-2026-45070 email header injection (medium, fixed in 7.4.22). No custom MIME parameter handling in `app/` | Patch update with approval, together with F-2 |
-| F-4 | `npm audit`: `tinypool` (critical, prototype pollution to RCE), `oxfmt`, `@vitest/*` — all through `vite-plus@0.3.0`; build-time tools listed under `dependencies` | Task 1.3 |
+| F-4 | `npm audit`: `tinypool` (critical, prototype pollution to RCE), `oxfmt`, `@vitest/*` — all through `vite-plus@0.3.0`; build-time tools listed under `dependencies` | **Closed in task 1.3** — `vite-plus` 1.4.0, `npm audit` reports 0 vulnerabilities |
 | F-5 | Local `.env` uses `QUEUE_CONNECTION=database`; `.env.example` and TDR-11 specify `sync` | Local file, not tracked; owner to align |
 | F-6 | CI runs only on pushes to `main` and uses Node 22 | Task 1.4 (already planned, MD-2/MD-3) |
+
+## Task 1.3 — Frontend Toolchain Remediation (2026-10-30)
+
+| Change | Detail |
+|---|---|
+| `vite-plus` | 0.3.0 → 1.4.0 (major), installed by removing 0.3.0 first; no `--force` or `--legacy-peer-deps` |
+| `vite` | Direct dependency aliased to `npm:@voidzero-dev/vite-plus-core@1.4.0` plus an `overrides` entry, as required by `vite-plus` 1.x; plain Vite 8.3.4 is no longer installed |
+| Node | `.nvmrc` (`24`); no `engines` field (owner decision, see [DECISIONS.md](DECISIONS.md)) |
+| Unchanged | `vp build` / `vp dev` scripts, `vite.config.js`, `vp migrate` not run (it reformats sources and installs hooks) |
+

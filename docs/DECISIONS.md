@@ -141,7 +141,7 @@ Phase 0 (Architecture & Planning, documents 0.1–0.10) was **completed and appr
 | ID | Decision | Status |
 |---|---|---|
 | 0.8 Q-1 | `intervention/image` | Approval at use (Phase 3) |
-| 0.8 Q-2 | `vite-plus` remediation: evaluate replacement by plain `vite` first | In task 1.3 |
+| 0.8 Q-2 | `vite-plus` remediation: evaluate replacement by plain `vite` first | Resolved in task 1.3: upgrade to `vite-plus` 1.x (see change log) |
 | 0.8 Q-3 | PHP 8.3 for MVP | Accepted |
 | 0.8 Q-4 | Caddy + PHP-FPM vs FrankenPHP | Deferred (Phase 7) |
 | 0.8 Q-5 | Mailpit in Sail | Approval at use (Phase 2, invitations) |
@@ -184,3 +184,4 @@ Conflicts between earlier Phase 0 documents (X-1 … X-11, for example `database
 | 2026-10-30 | — | Phase 0 documents 0.1–0.10 approved by the product owner |
 | 2026-10-30 | 1.1 | Baseline recorded ([PROGRESS.md](PROGRESS.md)); findings handed to later tasks, no decision changed |
 | 2026-10-30 | 1.2 | Composer package name `ertanergul/firmhub`; security reports through GitHub private vulnerability reporting ([SECURITY.md](../SECURITY.md)); OD-1 left open; Phase 2–7 names in [ROADMAP.md](ROADMAP.md) derived from 0.1 §4–5 |
+| 2026-10-30 | 1.3 | 0.8 Q-2 / MD-1: the owner chose upgrading `vite-plus` to 1.4.0 over the recommended replacement by plain `vite`. Consequence: `vite` is aliased to `@voidzero-dev/vite-plus-core` (VoidZero's Vite distribution) through `overrides`, so Vite updates follow `vite-plus` releases. Node pinned to 24 through `.nvmrc` only; the `engines` field planned in 0.10 §7.3 was dropped by the owner to stay aligned with the upstream starter kit and keep a single source for the Node version |
