@@ -1,11 +1,14 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
+    "name": "ertanergul/firmhub",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
+    "description": "Multi-tenant website builder and company CMS.",
     "keywords": [
         "laravel",
-        "framework"
+        "livewire",
+        "multi-tenant",
+        "website-builder",
+        "cms"
     ],
     "license": "MIT",
     "require": {
