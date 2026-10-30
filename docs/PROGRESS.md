@@ -8,8 +8,8 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 |---|---|
 | Phase | 1 — Foundation |
 | Last approved task | 1.6 Authentication Hardening (2026-10-30) |
-| Current task | F-1 fix (Sail test database host) |
-| Next task | 1.7 Case-Insensitive Email Uniqueness |
+| Current task | 1.7 Case-Insensitive Email Uniqueness |
+| Next task | 1.8 Platform Host, Trusted Hosts & Proxies |
 | Deferred | 1.4, 1.5 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5) |
 
 ## Phase 1 tasks
@@ -22,7 +22,7 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 1.4 | CI & Dependency Automation | Deferred | — |
 | 1.5 | Test Foundation | Deferred | — |
 | 1.6 | Authentication Hardening | Approved | `c031045` (PR #5) |
-| 1.7 | Case-Insensitive Email Uniqueness | Not started | — |
+| 1.7 | Case-Insensitive Email Uniqueness | In review | — |
 | 1.8 | Platform Host, Trusted Hosts & Proxies | Not started | — |
 | 1.9 | Security Headers Baseline | Not started | — |
 | 1.10 | Production Configuration Guardrails | Not started | — |
@@ -91,4 +91,16 @@ All versions match [0.8 §1](phase-0/0.8-technology-and-infrastructure-decisions
 | SEC-AUTH-8 auth logging | `LogAuthenticationEvent` logs login, logout, failed login, lockout and 2FA events with event name, guard and user ID only — no email, IP, credentials, codes or tokens |
 
 Residual risks: without the breach check, passwords that appear in public breach lists are accepted if they meet the length and composition rules (0.7 AU-1 credential stuffing). A reset link for an existing account is sent synchronously (`queue: sync`), so response timing can still differ between known and unknown emails. Queued notifications are evaluated in Phase 7.
+
+## Task 1.7 — Case-Insensitive Email Uniqueness (2026-10-30)
+
+| Change | Detail |
+|---|---|
+| Normalization | `CreateNewUser` and the profile settings page lowercase the email before validation; Fortify already lowercases it on the registration request (`lowercase_usernames`) |
+| Database | Migration lowercases stored emails and adds `users_email_lower_unique` on `lower(email)`; `down()` drops the index (original letter case is not restored). The existing `users_email_unique` index is kept for exact lookups |
+| Fixed defect | Before this task, changing the email on the profile page to a mixed-case value was saved as entered, after which login (lowercased by Fortify) could no longer find the account |
+| Data check | 0 users and 0 case-variant duplicates in `firmhub` and `testing` before the migration; with duplicates present the migration fails with `23505` and changes nothing (verified on `testing`) |
+| Applied to | `testing` (rollback → migrate verified twice) and the local development database `firmhub` (batch 2) |
+
+Residual risk: two simultaneous requests with the same email can both pass validation; the index rejects the second with a server error instead of a validation message.
 

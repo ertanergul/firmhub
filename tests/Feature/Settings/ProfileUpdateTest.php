@@ -28,6 +28,40 @@ test('profile information can be updated', function () {
     expect($user->email_verified_at)->toBeNull();
 });
 
+test('profile update rejects an email that differs from another user only in letter case', function () {
+    User::factory()->create(['email' => 'taken@example.com']);
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    $response = Livewire::test('pages::settings.profile')
+        ->set('name', $user->name)
+        ->set('email', 'Taken@Example.com')
+        ->call('updateProfileInformation');
+
+    $response->assertHasErrors(['email' => 'unique']);
+
+    expect($user->refresh()->email)->not->toBe('taken@example.com');
+});
+
+test('profile update stores the email in lowercase', function () {
+    $user = User::factory()->create(['email' => 'me@example.com']);
+
+    $this->actingAs($user);
+
+    $response = Livewire::test('pages::settings.profile')
+        ->set('name', $user->name)
+        ->set('email', 'ME@Example.com')
+        ->call('updateProfileInformation');
+
+    $response->assertHasNoErrors();
+
+    $user->refresh();
+
+    expect($user->email)->toBe('me@example.com');
+    expect($user->email_verified_at)->not->toBeNull();
+});
+
 test('email verification status is unchanged when email address is unchanged', function () {
     $user = User::factory()->create();
 
