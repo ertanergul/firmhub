@@ -25,6 +25,41 @@ test('reset password link can be requested', function () {
     Notification::assertSentTo($user, ResetPassword::class);
 });
 
+test('reset password link response does not reveal whether an account exists', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+
+    $knownResponse = $this->from(route('password.request'))
+        ->post(route('password.email'), ['email' => $user->email]);
+
+    $unknownResponse = $this->from(route('password.request'))
+        ->post(route('password.email'), ['email' => 'nobody@example.com']);
+
+    foreach ([$knownResponse, $unknownResponse] as $response) {
+        $response->assertRedirect(route('password.request'))
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('status', __('If an account exists for that email address, a password reset link has been sent.'));
+    }
+
+    Notification::assertSentTo($user, ResetPassword::class);
+    Notification::assertSentTimes(ResetPassword::class, 1);
+});
+
+test('reset password link json response does not reveal whether an account exists', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+
+    $knownResponse = $this->postJson(route('password.email'), ['email' => $user->email]);
+    $unknownResponse = $this->postJson(route('password.email'), ['email' => 'nobody@example.com']);
+
+    $knownResponse->assertOk();
+    $unknownResponse->assertOk();
+
+    expect($unknownResponse->json())->toBe($knownResponse->json());
+});
+
 test('reset password screen can be rendered', function () {
     Notification::fake();
 
