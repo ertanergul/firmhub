@@ -7,8 +7,8 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 1 — Foundation |
-| Last approved task | 1.3 Frontend Toolchain Remediation (2026-10-30) |
-| Current task | 1.6 Authentication Hardening |
+| Last approved task | 1.6 Authentication Hardening (2026-10-30) |
+| Current task | F-1 fix (Sail test database host) |
 | Next task | 1.7 Case-Insensitive Email Uniqueness |
 | Deferred | 1.4, 1.5 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5) |
 
@@ -21,7 +21,7 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 1.3 | Frontend Toolchain Remediation | Approved | `80e35bc` (PR #4) |
 | 1.4 | CI & Dependency Automation | Deferred | — |
 | 1.5 | Test Foundation | Deferred | — |
-| 1.6 | Authentication Hardening | In review | — |
+| 1.6 | Authentication Hardening | Approved | `c031045` (PR #5) |
 | 1.7 | Case-Insensitive Email Uniqueness | Not started | — |
 | 1.8 | Platform Host, Trusted Hosts & Proxies | Not started | — |
 | 1.9 | Security Headers Baseline | Not started | — |
@@ -65,7 +65,7 @@ All versions match [0.8 §1](phase-0/0.8-technology-and-infrastructure-decisions
 
 | # | Finding | Planned handling |
 |---|---|---|
-| F-1 | `phpunit.xml` `DB_HOST=127.0.0.1` breaks `sail artisan test` inside the container (works in CI and from the host) | Fix in a later Phase 1 task (1.4 or 1.5) with approval; workaround documented in the [README](../README.md#known-issue-tests-inside-sail) |
+| F-1 | `phpunit.xml` `DB_HOST=127.0.0.1` breaks `sail artisan test` inside the container (works in CI and from the host) | **Closed** (owner request, 2026-10-30): `DB_HOST` override removed from `phpunit.xml`; Sail uses `.env`, CI sets `DB_HOST` itself. Host-PHP test runs are unsupported because of the shared compiled-view cache ([README](../README.md#running-tests)) |
 | F-2 | `livewire/livewire` 4.4.7 — `#[Authorize]` bypass, GHSA-mhf7-xp6r-6qrc (medium, fixed in 4.4.8). The project does not use `#[Authorize]` or `#[Json]` | Patch update with approval (task 1.4 or a separate task before Phase 2) |
 | F-3 | `symfony/mime` 7.4.19 — CVE-2026-45070 email header injection (medium, fixed in 7.4.22). No custom MIME parameter handling in `app/` | Patch update with approval, together with F-2 |
 | F-4 | `npm audit`: `tinypool` (critical, prototype pollution to RCE), `oxfmt`, `@vitest/*` — all through `vite-plus@0.3.0`; build-time tools listed under `dependencies` | **Closed in task 1.3** — `vite-plus` 1.4.0, `npm audit` reports 0 vulnerabilities |

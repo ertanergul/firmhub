@@ -51,22 +51,18 @@ The application is available at <http://localhost> (`APP_PORT`, default `80`). T
 | Code style (fix) | `vendor/bin/sail composer lint` |
 | Code style (check) | `vendor/bin/sail composer lint:check` |
 | Static analysis | `vendor/bin/sail composer types:check` |
-| Tests | `vendor/bin/sail artisan test --compact` (see known issue below) |
+| Tests | `vendor/bin/sail artisan test --compact` |
 | Pint + Larastan + tests | `vendor/bin/sail composer test` |
 | PHP dependency audit | `vendor/bin/sail composer audit` |
 | JS dependency audit | `npm audit` |
 
 Use `vendor/bin/sail composer …` rather than host Composer when the host version is older than 2.4 (no `audit` command).
 
-### Known issue: tests inside Sail
+### Running tests
 
-`phpunit.xml` sets `DB_HOST=127.0.0.1`, which works in CI and from the host but not inside the `laravel.test` container. Until this is fixed in a later Phase 1 task, run the suite inside Sail with:
+Run the suite inside Sail. `phpunit.xml` switches the database to `testing`, so tests never touch the development database. The database host is not overridden: inside Sail it comes from `.env` (`pgsql`); CI sets `DB_HOST=127.0.0.1` in the workflow environment.
 
-```bash
-docker compose exec -u sail -e DB_HOST=pgsql laravel.test php artisan test --compact
-```
-
-or from the host with `php artisan test --compact` (PHP 8.3 on the host, port `5432` forwarded to the `pgsql` container). Both target the `testing` database, never the development database.
+Running tests with host PHP is not supported: compiled Blade views in `storage/framework/views` are shared between the host and the container and contain container paths, so mixing both breaks view rendering on whichever side did not compile them (`php artisan view:clear` on that side recovers).
 
 ## Tenant subdomains locally
 
