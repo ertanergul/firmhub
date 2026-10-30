@@ -7,9 +7,10 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 1 — Foundation |
-| Last approved task | 1.2 Project Documentation & Identity (2026-10-30) |
-| Current task | 1.3 Frontend Toolchain Remediation |
-| Next task | 1.4 CI & Dependency Automation |
+| Last approved task | 1.3 Frontend Toolchain Remediation (2026-10-30) |
+| Current task | 1.6 Authentication Hardening |
+| Next task | 1.7 Case-Insensitive Email Uniqueness |
+| Deferred | 1.4, 1.5 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5) |
 
 ## Phase 1 tasks
 
@@ -17,10 +18,10 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 |---|---|---|---|
 | 1.1 | Baseline Validation | Approved | — (validation only) |
 | 1.2 | Project Documentation & Identity | Approved | `0d0a041` (PR #3) |
-| 1.3 | Frontend Toolchain Remediation | In review | — |
-| 1.4 | CI & Dependency Automation | Not started | — |
-| 1.5 | Test Foundation | Not started | — |
-| 1.6 | Authentication Hardening | Not started | — |
+| 1.3 | Frontend Toolchain Remediation | Approved | `80e35bc` (PR #4) |
+| 1.4 | CI & Dependency Automation | Deferred | — |
+| 1.5 | Test Foundation | Deferred | — |
+| 1.6 | Authentication Hardening | In review | — |
 | 1.7 | Case-Insensitive Email Uniqueness | Not started | — |
 | 1.8 | Platform Host, Trusted Hosts & Proxies | Not started | — |
 | 1.9 | Security Headers Baseline | Not started | — |
@@ -79,4 +80,15 @@ All versions match [0.8 §1](phase-0/0.8-technology-and-infrastructure-decisions
 | `vite` | Direct dependency aliased to `npm:@voidzero-dev/vite-plus-core@1.4.0` plus an `overrides` entry, as required by `vite-plus` 1.x; plain Vite 8.3.4 is no longer installed |
 | Node | `.nvmrc` (`24`); no `engines` field (owner decision, see [DECISIONS.md](DECISIONS.md)) |
 | Unchanged | `vp build` / `vp dev` scripts, `vite.config.js`, `vp migrate` not run (it reformats sources and installs hooks) |
+
+## Task 1.6 — Authentication Hardening (2026-10-30)
+
+| Requirement | Implementation |
+|---|---|
+| SEC-AUTH-1 throttles | `ThrottleAuthenticationRequests` (web group) applies named limiters to Fortify routes Fortify does not throttle: `register` 10/hour per IP; `password-reset-link` 5/min per IP and 3 per 10 min per normalized email. Exceeding a limit returns `429` |
+| SEC-AUTH-2 uniform response | `PasswordResetLinkRequestResponse` is bound to both Fortify reset-link response contracts and returns the same message for known and unknown emails (HTML and JSON) |
+| SEC-AUTH-3 password policy | **Changed by owner decision:** production requires at least 8 characters with mixed case, letters, numbers and symbols; the Have I Been Pwned `uncompromised()` check is removed, so no outbound request is made. Other environments keep Laravel's default (8 characters) |
+| SEC-AUTH-8 auth logging | `LogAuthenticationEvent` logs login, logout, failed login, lockout and 2FA events with event name, guard and user ID only — no email, IP, credentials, codes or tokens |
+
+Residual risks: without the breach check, passwords that appear in public breach lists are accepted if they meet the length and composition rules (0.7 AU-1 credential stuffing). A reset link for an existing account is sent synchronously (`queue: sync`), so response timing can still differ between known and unknown emails. Queued notifications are evaluated in Phase 7.
 
