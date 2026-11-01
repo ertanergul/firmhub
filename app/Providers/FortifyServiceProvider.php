@@ -21,6 +21,9 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Fortify registers its routes while booting, so the application host must be set before that (0.4 SD-2).
+        config(['fortify.domain' => config('app.host')]);
+
         $this->app->singleton(FailedPasswordResetLinkRequestResponse::class, PasswordResetLinkRequestResponse::class);
         $this->app->singleton(SuccessfulPasswordResetLinkRequestResponse::class, PasswordResetLinkRequestResponse::class);
     }

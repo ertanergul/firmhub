@@ -13,6 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustHosts(at: fn (): array => [
+            '^'.preg_quote(config('app.host')).'$',
+            '^[^.]+\.'.preg_quote(config('app.host')).'$',
+        ], subdomains: false);
+
         $middleware->web(append: [
             ThrottleAuthenticationRequests::class,
         ]);
