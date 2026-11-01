@@ -49,7 +49,7 @@ flowchart LR
 | 1.5 | Test Foundation | `LazilyRefreshDatabase`, global test isolation, architecture suite |
 | 1.6 | Authentication Hardening | Throttles, uniform reset response, configurable `uncompromised()`, auth logging |
 | 1.7 | Case-Insensitive Email Uniqueness | Lowercase emails and a unique index on `lower(email)` |
-| 1.8 | Platform Host, Trusted Hosts & Proxies | `config/firmhub.php`, trusted hosts/proxies, platform routes bound to the platform host |
+| 1.8 | Platform Host, Trusted Hosts & Proxies | `app.host` from `APP_URL`, trusted hosts/proxies, platform routes bound to the platform host |
 | 1.9 | Security Headers Baseline | Platform security headers, report-only dashboard CSP |
 | 1.10 | Production Configuration Guardrails | Refuse debug mode in production; document secure production values |
 | 1.11 | Platform Admin Foundation | `is_platform_admin` flag, gate and 2FA-checked Artisan commands |

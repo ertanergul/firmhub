@@ -4,7 +4,7 @@ Summary of the architecture approved in Phase 0. The detailed designs live in [d
 
 ## Overview
 
-FirmHub is a **modular Laravel 13 monolith** (PHP 8.3, Livewire 4, Flux, Tailwind 4, PostgreSQL 18). `Company` is the tenant; users join companies through role-based memberships (Owner, Admin, Editor, Viewer). Tenant isolation is enforced explicitly — company in the dashboard URL, membership middleware, scoped bindings, policies on every action — and backed by PostgreSQL constraints, including composite foreign keys that make cross-tenant references impossible. Each company has one website in the MVP (a unique constraint that can be dropped later). Sites are structured content (sections with validated `jsonb` settings plus relational records) rendered by code-defined themes into server-rendered, JavaScript-free, cookie-free pages on `{subdomain}.{tenant_domain}`. Custom domains (Cloudflare for SaaS or a self-hosted provider) are designed behind an interface and deferred to Phase 5.
+FirmHub is a **modular Laravel 13 monolith** (PHP 8.3, Livewire 4, Flux, Tailwind 4, PostgreSQL 18). `Company` is the tenant; users join companies through role-based memberships (Owner, Admin, Editor, Viewer). Tenant isolation is enforced explicitly — company in the dashboard URL, membership middleware, scoped bindings, policies on every action — and backed by PostgreSQL constraints, including composite foreign keys that make cross-tenant references impossible. Each company has one website in the MVP (a unique constraint that can be dropped later). Sites are structured content (sections with validated `jsonb` settings plus relational records) rendered by code-defined themes into server-rendered, JavaScript-free, cookie-free pages on `{subdomain}.{platform domain}` (e.g. `acme.firmhub.com`). Custom domains (Cloudflare for SaaS or a self-hosted provider) are designed behind an interface and deferred to Phase 5.
 
 ## Request contexts
 
@@ -12,7 +12,7 @@ FirmHub is a **modular Laravel 13 monolith** (PHP 8.3, Livewire 4, Flux, Tailwin
 flowchart TB
     subgraph Hosts
         PH[Platform host<br/>dashboard, auth, preview, admin]
-        TH["Tenant hosts<br/>{subdomain}.{tenant_domain}"]
+        TH["Tenant hosts<br/>{subdomain}.{platform domain}"]
         CD[Custom domains<br/>Phase 5]
     end
     subgraph App["Laravel modular monolith"]
@@ -52,7 +52,7 @@ flowchart TB
 | Product scope | Single-page site (Hero, About, Products/Services, Contact) + privacy page; one site per company; subdomain first; industry chosen at onboarding, never forces a theme | [0.1](phase-0/0.1-product-scope-and-mvp.md) |
 | Tenancy | Shared schema; native Laravel, no tenancy or permission package; explicit scoping, no global scope; 404 for non-members, 403 for missing permission | [0.2](phase-0/0.2-multi-tenancy-and-authorization.md) |
 | Data | UUIDv7 keys for tenant tables (`users` stays `bigint`); `varchar` + CHECK for enums; `jsonb` only where justified; composite FKs for cross-tenant safety; `timestamptz` for new tables | [0.3](phase-0/0.3-postgresql-data-architecture.md) |
-| Domains & publishing | Independent platform host and tenant domain; strict subdomain rules, reserved names, change cooldown and quarantine; `draft → published ⇄ unpublished` with orthogonal suspension; identical 404 for every non-visible state | [0.4](phase-0/0.4-subdomain-domain-and-publishing.md) |
+| Domains & publishing | Tenant sites on single-label subdomains of the platform domain (Option A, [DECISIONS](DECISIONS.md) 2026-11-01); strict subdomain rules, reserved names, change cooldown and quarantine; `draft → published ⇄ unpublished` with orthogonal suspension; identical 404 for every non-visible state | [0.4](phase-0/0.4-subdomain-domain-and-publishing.md) |
 | CMS & themes | Section type registry with versioned settings schemas; plain text only; themes are code fed only by `SitePageData`; media IDs in settings validated with a usage finder | [0.5](phase-0/0.5-cms-and-website-builder.md) |
 | Public site | Stateless middleware group, zero required JavaScript, strict CSP, ≤ 5 queries per page, canonical URLs from `SiteUrlGenerator`, per-host robots/sitemap | [0.6](phase-0/0.6-public-website-seo-and-performance.md) |
 | Security & privacy | Hostile tenant as design driver; SEC-* requirements; no visitor IP stored; no cookies or third parties on public sites | [0.7](phase-0/0.7-security-architecture-and-threat-model.md) |

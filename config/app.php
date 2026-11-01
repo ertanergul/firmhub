@@ -56,6 +56,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Host
+    |--------------------------------------------------------------------------
+    |
+    | The host of the application URL. Platform routes only answer on this
+    | host, and company sites are served on its single-label subdomains
+    | (e.g. acme.firmhub.com). Any other host is rejected outside local.
+    |
+    */
+
+    'host' => parse_url((string) env('APP_URL'), PHP_URL_HOST) ?: 'localhost',
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

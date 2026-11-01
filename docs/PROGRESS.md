@@ -7,9 +7,9 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 1 — Foundation |
-| Last approved task | 1.6 Authentication Hardening (2026-10-30) |
-| Current task | 1.7 Case-Insensitive Email Uniqueness |
-| Next task | 1.8 Platform Host, Trusted Hosts & Proxies |
+| Last approved task | 1.7 Case-Insensitive Email Uniqueness (2026-10-30) |
+| Current task | 1.8 Platform Host, Trusted Hosts & Proxies |
+| Next task | 1.9 Security Headers Baseline |
 | Deferred | 1.4, 1.5 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5) |
 
 ## Phase 1 tasks
@@ -22,8 +22,8 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 1.4 | CI & Dependency Automation | Deferred | — |
 | 1.5 | Test Foundation | Deferred | — |
 | 1.6 | Authentication Hardening | Approved | `c031045` (PR #5) |
-| 1.7 | Case-Insensitive Email Uniqueness | In review | — |
-| 1.8 | Platform Host, Trusted Hosts & Proxies | Not started | — |
+| 1.7 | Case-Insensitive Email Uniqueness | Approved | `14f86f9` (PR #8) |
+| 1.8 | Platform Host, Trusted Hosts & Proxies | In review | — |
 | 1.9 | Security Headers Baseline | Not started | — |
 | 1.10 | Production Configuration Guardrails | Not started | — |
 | 1.11 | Platform Admin Foundation | Not started | — |
@@ -103,4 +103,16 @@ Residual risks: without the breach check, passwords that appear in public breach
 | Applied to | `testing` (rollback → migrate verified twice) and the local development database `firmhub` (batch 2) |
 
 Residual risk: two simultaneous requests with the same email can both pass validation; the index rejects the second with a server error instead of a validation message.
+
+## Task 1.8 — Platform Host, Trusted Hosts & Proxies (2026-10-31)
+
+| Change | Detail |
+|---|---|
+| Configuration | `app.host` in `config/app.php`: the `APP_URL` host, used as the platform host and as the domain under which tenant sites live; `config/trustedproxy.php`: `proxies` from `TRUSTED_PROXIES`, read by the framework `TrustProxies` middleware |
+| Trusted hosts | The framework `TrustHosts` middleware is enabled in `bootstrap/app.php` with two patterns: the application host and its single-label subdomains. Other hosts receive `400`. As in the framework default, the check is skipped in the local environment and in tests; there, platform routes still answer only on the platform host (404 elsewhere) |
+| Platform routes | `routes/web.php` (incl. settings), Fortify (`fortify.domain`) and the Livewire update endpoint are bound to the platform host; on tenant hosts they return `404`. Livewire's update route is registered before Livewire boots, so its unconstrained default route is never added |
+| Host-agnostic routes | `/up`, Flux and Livewire static assets, Livewire upload/preview (signed URLs, host included in the signature), `storage/{path}` (signed), `_boost` (development only) |
+| Reset links | Forged `X-Forwarded-Host` from untrusted addresses is ignored; a host forwarded by a trusted proxy that is not the platform host reaches no platform route (404 locally, 400 elsewhere) |
+
+Residual risks: generated platform URLs take the port from the request, so a trusted host with an unexpected port yields links with that port (no attacker-controlled host is possible). In local debug mode the `400` page shows exception details; production configuration is task 1.10.
 
