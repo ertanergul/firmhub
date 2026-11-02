@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureGates();
     }
 
     /**
@@ -60,5 +63,15 @@ class AppServiceProvider extends ServiceProvider
                 ->symbols()
             : null,
         );
+    }
+
+    /**
+     * Define the platform-level gates.
+     *
+     * Platform admins get no implicit tenant permissions, so there is no Gate::before bypass (0.2 §10).
+     */
+    protected function configureGates(): void
+    {
+        Gate::define('platform.admin', fn (User $user): bool => $user->is_platform_admin);
     }
 }

@@ -52,7 +52,7 @@ flowchart LR
 | 1.8 | Platform Host, Trusted Hosts & Proxies | `app.host` from `APP_URL`, trusted hosts/proxies, platform routes bound to the platform host |
 | 1.9 | Security Headers Baseline | Platform security headers, report-only dashboard CSP |
 | 1.10 | Production Configuration Guardrails | Refuse debug mode in production; document secure production values |
-| 1.11 | Platform Admin Foundation | `is_platform_admin` flag, gate and 2FA-checked Artisan commands |
+| 1.11 | Platform Admin Foundation | `is_platform_admin` flag, gate and Artisan commands (2FA check deferred) |
 | 1.12 | Localization Foundation | English and Turkish dashboard, locale preference (needs OD-6) |
 | 1.13 | Dashboard Shell & Branding | FirmHub branding and dashboard navigation shell |
 

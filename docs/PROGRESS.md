@@ -7,10 +7,10 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 1 — Foundation |
-| Last approved task | 1.7 Case-Insensitive Email Uniqueness (2026-10-30) |
-| Current task | 1.8 Platform Host, Trusted Hosts & Proxies |
-| Next task | 1.9 Security Headers Baseline |
-| Deferred | 1.4, 1.5 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5) |
+| Last approved task | 1.8 Platform Host, Trusted Hosts & Proxies (2026-11-01) |
+| Current task | 1.11 Platform Admin Foundation |
+| Next task | 1.12 Localization Foundation |
+| Deferred | 1.4, 1.5, 1.9, 1.10 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5, E-8, E-9) |
 
 ## Phase 1 tasks
 
@@ -23,10 +23,10 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 1.5 | Test Foundation | Deferred | — |
 | 1.6 | Authentication Hardening | Approved | `c031045` (PR #5) |
 | 1.7 | Case-Insensitive Email Uniqueness | Approved | `14f86f9` (PR #8) |
-| 1.8 | Platform Host, Trusted Hosts & Proxies | In review | — |
-| 1.9 | Security Headers Baseline | Not started | — |
-| 1.10 | Production Configuration Guardrails | Not started | — |
-| 1.11 | Platform Admin Foundation | Not started | — |
+| 1.8 | Platform Host, Trusted Hosts & Proxies | Approved | `78539ee` (PR #9) |
+| 1.9 | Security Headers Baseline | Deferred | — |
+| 1.10 | Production Configuration Guardrails | Deferred | — |
+| 1.11 | Platform Admin Foundation | In review | — |
 | 1.12 | Localization Foundation | Not started | — |
 | 1.13 | Dashboard Shell & Branding | Not started | — |
 
@@ -116,3 +116,16 @@ Residual risk: two simultaneous requests with the same email can both pass valid
 
 Residual risks: generated platform URLs take the port from the request, so a trusted host with an unexpected port yields links with that port (no attacker-controlled host is possible). In local debug mode the `400` page shows exception details; production configuration is task 1.10.
 
+## Task 1.11 — Platform Admin Foundation (2026-11-02)
+
+| Change | Detail |
+|---|---|
+| Database | `users.is_platform_admin` (`boolean`, not null, default `false`); `down()` drops the column |
+| Model | Cast to `boolean`, default `false` on new instances, not in `Fillable` (mass assignment is ignored) |
+| Gate | `platform.admin` allows users with the flag; no `Gate::before`, so the flag grants no other ability |
+| Commands | `platform-admin:grant` / `platform-admin:revoke {email} --reason= [--actor=]`: email matched in lowercase, `--reason` required, unknown user or actor fails, a call that changes nothing succeeds without writing or logging |
+| Logging | `info` entry with `event`, `actor` (operating system user), `actor_user_id`, `user_id` and `reason`; no email addresses |
+| Not included | 2FA requirement for platform admins (0.7 SEC-ADMIN-1), deferred by the owner |
+| Applied to | Local development database `firmhub` (batch 3, rollback → migrate verified) |
+
+Residual risk: platform admin accounts are protected by password only until SEC-ADMIN-1 is implemented; the flag has no effect yet because no admin route or action exists.

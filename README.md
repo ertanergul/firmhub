@@ -68,6 +68,15 @@ Running tests with host PHP is not supported: compiled Blade views in `storage/f
 
 Tenant sites will be served on `{subdomain}.localhost` (for example `http://acme.localhost`). Platform pages (login, dashboard, settings) answer only on the `APP_URL` host (`localhost`) and return 404 on any other host; in production company sites live under the same domain (e.g. `acme.firmhub.com` next to `firmhub.com`). Outside the local environment, requests for hosts other than the `APP_URL` host and its single-label subdomains are rejected with 400 before reaching the application. When using a tunnel such as ngrok, set `APP_URL` to the tunnel URL. Chrome, Firefox, Edge and curl resolve `*.localhost` to the loopback address without configuration; Safari behavior is not yet verified. A dnsmasq setup for `*.firmhub.test` is the documented fallback ([0.4 §8.1](docs/phase-0/0.4-subdomain-domain-and-publishing.md)).
 
+## Platform admins
+
+The platform admin flag is set only from the command line. `--reason` is required and is written to the application log together with the operating system user; `--actor` records the user who requested the change.
+
+```bash
+vendor/bin/sail artisan platform-admin:grant user@example.com --reason="Operations on-call"
+vendor/bin/sail artisan platform-admin:revoke user@example.com --reason="Left the operations team"
+```
+
 ## Contributing and security
 
 - Workflow, commit conventions and Definition of Done: [CONTRIBUTING.md](CONTRIBUTING.md)
