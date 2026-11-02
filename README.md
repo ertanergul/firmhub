@@ -88,4 +88,4 @@ Platform admins are not yet required to use two-factor authentication ([DECISION
 
 ## License
 
-The project license has not been decided yet (owner decision OD-1 in [docs/DECISIONS.md](docs/DECISIONS.md)). The `license` field in `composer.json` is inherited from the starter kit and does not represent that decision; a `LICENSE` file will be added once it is made.
+FirmHub is open-source software licensed under the [MIT license](LICENSE).
