@@ -37,7 +37,7 @@ Common types: `feat`, `fix`, `docs`, `test`, `refactor`, `build`, `ci`, `chore`.
 
 ```text
 feat(auth): enforce case-insensitive unique user emails
-ci: run on develop, add dependency audits and migration rollback check
+ci: add dependency audits and migration rollback check
 ```
 
 Never commit `.env`, credentials or other secrets.
@@ -72,8 +72,8 @@ From [0.9 §11](docs/phase-0/0.9-testing-and-quality-strategy.md):
 | Gate | When | Checks |
 |---|---|---|
 | G1 — Change | While implementing | Narrowest relevant tests, `vendor/bin/pint --dirty` |
-| G2 — Task completion | Before the task report | Full Pest suite, Pint, Larastan, build if frontend changed, migrations fresh + rollback if migrations changed, audits if dependencies changed |
-| G3 — Pull request | CI on every PR | Pint, Larastan, Pest, build, audits, migration rollback check (being completed in Phase 1) |
+| G2 — Task completion | Before the task report and before a pull request into `develop` | Full Pest suite, Pint, Larastan, build if frontend changed, migrations fresh + rollback if migrations changed, audits if dependencies changed |
+| G3 — Pull request | CI on pull requests into `main` (releases) and pushes to `main`; pull requests into `develop` rely on G2, run locally | Pint, Larastan, Pest, build, audits, migration rollback check (being completed in Phase 1) |
 
 Full definitions: [0.9 §9](docs/phase-0/0.9-testing-and-quality-strategy.md).
 

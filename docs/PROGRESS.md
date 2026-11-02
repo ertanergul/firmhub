@@ -70,7 +70,7 @@ All versions match [0.8 §1](phase-0/0.8-technology-and-infrastructure-decisions
 | F-3 | `symfony/mime` 7.4.19 — CVE-2026-45070 email header injection (medium, fixed in 7.4.22). No custom MIME parameter handling in `app/` | Patch update with approval, together with F-2 |
 | F-4 | `npm audit`: `tinypool` (critical, prototype pollution to RCE), `oxfmt`, `@vitest/*` — all through `vite-plus@0.3.0`; build-time tools listed under `dependencies` | **Closed in task 1.3** — `vite-plus` 1.4.0, `npm audit` reports 0 vulnerabilities |
 | F-5 | Local `.env` uses `QUEUE_CONNECTION=database`; `.env.example` and TDR-11 specify `sync` | Local file, not tracked; owner to align |
-| F-6 | CI runs only on pushes to `main` and uses Node 22 | Task 1.4 (already planned, MD-2/MD-3) |
+| F-6 | CI runs only on pushes to `main` and uses Node 22 | Trigger: CI runs on pull requests into `main` and pushes to `main`, not on `develop` (owner decision 2026-11-02, see DECISIONS). Node 22 → 24: task 1.4 (MD-2) |
 
 ## Task 1.3 — Frontend Toolchain Remediation (2026-10-30)
 
