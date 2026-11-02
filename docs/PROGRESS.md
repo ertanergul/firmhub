@@ -7,10 +7,10 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 1 — Foundation |
-| Last approved task | 1.6 Authentication Hardening (2026-10-30) |
-| Current task | F-1 fix (Sail test database host) |
-| Next task | 1.7 Case-Insensitive Email Uniqueness |
-| Deferred | 1.4, 1.5 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5) |
+| Last approved task | 1.8 Platform Host, Trusted Hosts & Proxies (2026-11-01) |
+| Current task | 1.11 Platform Admin Foundation |
+| Next task | 1.12 Localization Foundation |
+| Deferred | 1.4, 1.5, 1.9, 1.10 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5, E-8, E-9) |
 
 ## Phase 1 tasks
 
@@ -22,11 +22,11 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 1.4 | CI & Dependency Automation | Deferred | — |
 | 1.5 | Test Foundation | Deferred | — |
 | 1.6 | Authentication Hardening | Approved | `c031045` (PR #5) |
-| 1.7 | Case-Insensitive Email Uniqueness | Not started | — |
-| 1.8 | Platform Host, Trusted Hosts & Proxies | Not started | — |
-| 1.9 | Security Headers Baseline | Not started | — |
-| 1.10 | Production Configuration Guardrails | Not started | — |
-| 1.11 | Platform Admin Foundation | Not started | — |
+| 1.7 | Case-Insensitive Email Uniqueness | Approved | `14f86f9` (PR #8) |
+| 1.8 | Platform Host, Trusted Hosts & Proxies | Approved | `78539ee` (PR #9) |
+| 1.9 | Security Headers Baseline | Deferred | — |
+| 1.10 | Production Configuration Guardrails | Deferred | — |
+| 1.11 | Platform Admin Foundation | In review | — |
 | 1.12 | Localization Foundation | Not started | — |
 | 1.13 | Dashboard Shell & Branding | Not started | — |
 
@@ -70,7 +70,7 @@ All versions match [0.8 §1](phase-0/0.8-technology-and-infrastructure-decisions
 | F-3 | `symfony/mime` 7.4.19 — CVE-2026-45070 email header injection (medium, fixed in 7.4.22). No custom MIME parameter handling in `app/` | Patch update with approval, together with F-2 |
 | F-4 | `npm audit`: `tinypool` (critical, prototype pollution to RCE), `oxfmt`, `@vitest/*` — all through `vite-plus@0.3.0`; build-time tools listed under `dependencies` | **Closed in task 1.3** — `vite-plus` 1.4.0, `npm audit` reports 0 vulnerabilities |
 | F-5 | Local `.env` uses `QUEUE_CONNECTION=database`; `.env.example` and TDR-11 specify `sync` | Local file, not tracked; owner to align |
-| F-6 | CI runs only on pushes to `main` and uses Node 22 | Task 1.4 (already planned, MD-2/MD-3) |
+| F-6 | CI runs only on pushes to `main` and uses Node 22 | Trigger: CI runs on pull requests into `main` and pushes to `main`, not on `develop` (owner decision 2026-11-02, see DECISIONS). Node 22 → 24: task 1.4 (MD-2) |
 
 ## Task 1.3 — Frontend Toolchain Remediation (2026-10-30)
 
@@ -92,3 +92,40 @@ All versions match [0.8 §1](phase-0/0.8-technology-and-infrastructure-decisions
 
 Residual risks: without the breach check, passwords that appear in public breach lists are accepted if they meet the length and composition rules (0.7 AU-1 credential stuffing). A reset link for an existing account is sent synchronously (`queue: sync`), so response timing can still differ between known and unknown emails. Queued notifications are evaluated in Phase 7.
 
+## Task 1.7 — Case-Insensitive Email Uniqueness (2026-10-30)
+
+| Change | Detail |
+|---|---|
+| Normalization | `CreateNewUser` and the profile settings page lowercase the email before validation; Fortify already lowercases it on the registration request (`lowercase_usernames`) |
+| Database | Migration lowercases stored emails and adds `users_email_lower_unique` on `lower(email)`; `down()` drops the index (original letter case is not restored). The existing `users_email_unique` index is kept for exact lookups |
+| Fixed defect | Before this task, changing the email on the profile page to a mixed-case value was saved as entered, after which login (lowercased by Fortify) could no longer find the account |
+| Data check | 0 users and 0 case-variant duplicates in `firmhub` and `testing` before the migration; with duplicates present the migration fails with `23505` and changes nothing (verified on `testing`) |
+| Applied to | `testing` (rollback → migrate verified twice) and the local development database `firmhub` (batch 2) |
+
+Residual risk: two simultaneous requests with the same email can both pass validation; the index rejects the second with a server error instead of a validation message.
+
+## Task 1.8 — Platform Host, Trusted Hosts & Proxies (2026-10-31)
+
+| Change | Detail |
+|---|---|
+| Configuration | `app.host` in `config/app.php`: the `APP_URL` host, used as the platform host and as the domain under which tenant sites live; `config/trustedproxy.php`: `proxies` from `TRUSTED_PROXIES`, read by the framework `TrustProxies` middleware |
+| Trusted hosts | The framework `TrustHosts` middleware is enabled in `bootstrap/app.php` with two patterns: the application host and its single-label subdomains. Other hosts receive `400`. As in the framework default, the check is skipped in the local environment and in tests; there, platform routes still answer only on the platform host (404 elsewhere) |
+| Platform routes | `routes/web.php` (incl. settings), Fortify (`fortify.domain`) and the Livewire update endpoint are bound to the platform host; on tenant hosts they return `404`. Livewire's update route is registered before Livewire boots, so its unconstrained default route is never added |
+| Host-agnostic routes | `/up`, Flux and Livewire static assets, Livewire upload/preview (signed URLs, host included in the signature), `storage/{path}` (signed), `_boost` (development only) |
+| Reset links | Forged `X-Forwarded-Host` from untrusted addresses is ignored; a host forwarded by a trusted proxy that is not the platform host reaches no platform route (404 locally, 400 elsewhere) |
+
+Residual risks: generated platform URLs take the port from the request, so a trusted host with an unexpected port yields links with that port (no attacker-controlled host is possible). In local debug mode the `400` page shows exception details; production configuration is task 1.10.
+
+## Task 1.11 — Platform Admin Foundation (2026-11-02)
+
+| Change | Detail |
+|---|---|
+| Database | `users.is_platform_admin` (`boolean`, not null, default `false`); `down()` drops the column |
+| Model | Cast to `boolean`, default `false` on new instances, not in `Fillable` (mass assignment is ignored) |
+| Gate | `platform.admin` allows users with the flag; no `Gate::before`, so the flag grants no other ability |
+| Commands | `platform-admin:grant` / `platform-admin:revoke {email} --reason= [--actor=]`: email matched in lowercase, `--reason` required, unknown user or actor fails, a call that changes nothing succeeds without writing or logging |
+| Logging | `info` entry with `event`, `actor` (operating system user), `actor_user_id`, `user_id` and `reason`; no email addresses |
+| Not included | 2FA requirement for platform admins (0.7 SEC-ADMIN-1), deferred by the owner |
+| Applied to | Local development database `firmhub` (batch 3, rollback → migrate verified) |
+
+Residual risk: platform admin accounts are protected by password only until SEC-ADMIN-1 is implemented; the flag has no effect yet because no admin route or action exists.

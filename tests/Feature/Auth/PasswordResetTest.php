@@ -98,3 +98,47 @@ test('password can be reset with valid token', function () {
         return true;
     });
 });
+
+test('reset password links ignore forwarded hosts from untrusted addresses', function () {
+    $user = User::factory()->create();
+
+    $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.5'])
+        ->withHeader('X-Forwarded-Host', 'evil.example')
+        ->post(route('password.email'), ['email' => $user->email]);
+
+    $links = sentPasswordResetLinks();
+
+    expect($links)->toHaveCount(1)
+        ->and($links[0])->toStartWith(config('app.url').'/reset-password/');
+});
+
+test('reset password requests forwarded by a proxy for another host are not handled', function () {
+    config(['trustedproxy.proxies' => '10.0.0.1']);
+
+    $user = User::factory()->create();
+
+    $response = $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.1'])
+        ->withHeader('X-Forwarded-Host', 'evil.example')
+        ->post(route('password.email'), ['email' => $user->email]);
+
+    $response->assertNotFound();
+
+    expect(sentPasswordResetLinks())->toBeEmpty();
+});
+
+/**
+ * Extract the password reset links from the emails captured by the array mail transport.
+ *
+ * @return array<int, string>
+ */
+function sentPasswordResetLinks(): array
+{
+    return app('mailer')->getSymfonyTransport()->messages()
+        ->flatMap(function ($message): array {
+            preg_match_all('#https?://[^\s"<>]+/reset-password/[^\s"<>]+#', (string) $message->getOriginalMessage()->getHtmlBody(), $matches);
+
+            return array_unique($matches[0]);
+        })
+        ->values()
+        ->all();
+}

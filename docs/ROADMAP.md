@@ -45,14 +45,14 @@ flowchart LR
 | 1.1 | Baseline Validation | Confirm the repository matches Phase 0 facts and record a baseline |
 | 1.2 | Project Documentation & Identity | Make the project self-describing |
 | 1.3 | Frontend Toolchain Remediation | Remove critical `vite-plus` advisories; pin Node 24 |
-| 1.4 | CI & Dependency Automation | CI on `develop`, audits, migration rollback check, Dependabot for Composer and npm |
+| 1.4 | CI & Dependency Automation | CI on pull requests into `main`, audits, migration rollback check, Dependabot for Composer and npm |
 | 1.5 | Test Foundation | `LazilyRefreshDatabase`, global test isolation, architecture suite |
 | 1.6 | Authentication Hardening | Throttles, uniform reset response, configurable `uncompromised()`, auth logging |
 | 1.7 | Case-Insensitive Email Uniqueness | Lowercase emails and a unique index on `lower(email)` |
-| 1.8 | Platform Host, Trusted Hosts & Proxies | `config/firmhub.php`, trusted hosts/proxies, platform routes bound to the platform host |
+| 1.8 | Platform Host, Trusted Hosts & Proxies | `app.host` from `APP_URL`, trusted hosts/proxies, platform routes bound to the platform host |
 | 1.9 | Security Headers Baseline | Platform security headers, report-only dashboard CSP |
 | 1.10 | Production Configuration Guardrails | Refuse debug mode in production; document secure production values |
-| 1.11 | Platform Admin Foundation | `is_platform_admin` flag, gate and 2FA-checked Artisan commands |
+| 1.11 | Platform Admin Foundation | `is_platform_admin` flag, gate and Artisan commands (2FA check deferred) |
 | 1.12 | Localization Foundation | English and Turkish dashboard, locale preference (needs OD-6) |
 | 1.13 | Dashboard Shell & Branding | FirmHub branding and dashboard navigation shell |
 
