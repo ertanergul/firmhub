@@ -53,3 +53,15 @@ test('new users are created with a lowercase email', function () {
 
     expect($user->email)->toBe('jane@example.com');
 });
+
+test('registration cannot create a platform admin', function () {
+    $this->post(route('register.store'), [
+        'name' => 'John Doe',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+        'is_platform_admin' => true,
+    ]);
+
+    expect(User::where('email', 'test@example.com')->sole()->is_platform_admin)->toBeFalse();
+});
