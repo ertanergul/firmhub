@@ -140,7 +140,7 @@ Residual risk: platform admin accounts are protected by password only until SEC-
 | Pages | Home page (`/`) replaced by a FirmHub page with log-in / register (guests) or dashboard (signed in) links; dashboard placeholder boxes replaced by a welcome text |
 | Removed | Unused starter-kit layouts `app/header`, `auth/card`, `auth/split`, the placeholder pattern component and unused Lucide icons |
 | Indexing | `<meta name="robots" content="noindex, nofollow">` in `partials/head`, used by the home, auth, dashboard and settings pages; `public/robots.txt` unchanged (see DECISIONS) |
-| Checked in the browser | Home, login and register pages on desktop (dark) and mobile (light); keyboard focus moves through the home page links with a visible focus ring. The dashboard was not opened in the browser because the development database has no user |
+| Checked in the browser | Home, login, register, dashboard and profile settings on desktop and mobile, light and dark; the mobile sidebar opens and closes; keyboard focus moves through the home page links with a visible focus ring, and the user menu opens with Enter and closes with Escape. Signed in as the seeder's `test@example.com` user, created in the local development database for this check |
 
 Icons are regenerated from `public/favicon.svg` with ImageMagick (not a project dependency):
 
