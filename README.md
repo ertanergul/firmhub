@@ -77,6 +77,10 @@ vendor/bin/sail artisan platform-admin:grant user@example.com --reason="Operatio
 vendor/bin/sail artisan platform-admin:revoke user@example.com --reason="Left the operations team"
 ```
 
+Code checks the flag through the `platform.admin` gate, for example `Route::middleware('can:platform.admin')` on a route group or `@can('platform.admin')` in a view. The flag grants no other ability: a platform admin has no access to a company's dashboard without a membership.
+
+Platform admins are not yet required to use two-factor authentication ([DECISIONS.md](docs/DECISIONS.md), task 1.11). No route or action may use the gate until that requirement is in place.
+
 ## Contributing and security
 
 - Workflow, commit conventions and Definition of Done: [CONTRIBUTING.md](CONTRIBUTING.md)
