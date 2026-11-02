@@ -7,10 +7,10 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 1 — Foundation |
-| Last approved task | 1.8 Platform Host, Trusted Hosts & Proxies (2026-11-01) |
-| Current task | 1.11 Platform Admin Foundation |
-| Next task | 1.12 Localization Foundation |
-| Deferred | 1.4, 1.5, 1.9, 1.10 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5, E-8, E-9) |
+| Last approved task | 1.11 Platform Admin Foundation (2026-11-02) |
+| Current task | 1.13 Dashboard Shell & Branding |
+| Next task | Deferred Phase 1 tasks (owner to choose the order) |
+| Deferred | 1.4, 1.5, 1.9, 1.10, 1.12 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5, E-8, E-9, E-11) |
 
 ## Phase 1 tasks
 
@@ -26,9 +26,9 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 1.8 | Platform Host, Trusted Hosts & Proxies | Approved | `78539ee` (PR #9) |
 | 1.9 | Security Headers Baseline | Deferred | — |
 | 1.10 | Production Configuration Guardrails | Deferred | — |
-| 1.11 | Platform Admin Foundation | In review | — |
-| 1.12 | Localization Foundation | Not started | — |
-| 1.13 | Dashboard Shell & Branding | Not started | — |
+| 1.11 | Platform Admin Foundation | Approved | `270a392` (PR #10) |
+| 1.12 | Localization Foundation | Deferred | — |
+| 1.13 | Dashboard Shell & Branding | In review | — |
 
 ## Task 1.1 — Baseline Validation (2026-10-30)
 
@@ -129,3 +129,23 @@ Residual risks: generated platform URLs take the port from the request, so a tru
 | Applied to | Local development database `firmhub` (batch 3, rollback → migrate verified) |
 
 Residual risk: platform admin accounts are protected by password only until SEC-ADMIN-1 is implemented; the flag has no effect yet because no admin route or action exists.
+
+## Task 1.13 — Dashboard Shell & Branding (2026-11-02)
+
+| Change | Detail |
+|---|---|
+| Brand | Placeholder "F" monogram (`components/app-logo-icon`) in the sidebar and auth layouts; the name comes from `APP_NAME`. Replaces the Laravel logo until a real FirmHub logo exists |
+| Icons | `favicon.svg`, `favicon.ico` (16/32/48 px) and `apple-touch-icon.png` (180 px, square without transparency) generated from the monogram |
+| Navigation | Starter-kit links (repository, documentation) removed; the sidebar has only Dashboard and is ready for the company sections of 0.5 §10, which are added once their pages exist |
+| Pages | Home page (`/`) replaced by a FirmHub page with log-in / register (guests) or dashboard (signed in) links; dashboard placeholder boxes replaced by a welcome text |
+| Removed | Unused starter-kit layouts `app/header`, `auth/card`, `auth/split`, the placeholder pattern component and unused Lucide icons |
+| Indexing | `<meta name="robots" content="noindex, nofollow">` in `partials/head`, used by the home, auth, dashboard and settings pages; `public/robots.txt` unchanged (see DECISIONS) |
+| Checked in the browser | Home, login, register, dashboard and profile settings on desktop and mobile, light and dark; the mobile sidebar opens and closes; keyboard focus moves through the home page links with a visible focus ring, and the user menu opens with Enter and closes with Escape. Signed in as the seeder's `test@example.com` user, created in the local development database for this check |
+
+Icons are regenerated from `public/favicon.svg` with ImageMagick (not a project dependency):
+
+```bash
+magick -background none -density 576 public/favicon.svg -define icon:auto-resize=48,32,16 public/favicon.ico
+sed 's/ rx="7"//' public/favicon.svg > /tmp/apple-touch-icon.svg
+magick -density 864 /tmp/apple-touch-icon.svg -resize 180x180 -background '#18181b' -alpha remove -alpha off -strip -depth 8 public/apple-touch-icon.png
+```
