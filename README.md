@@ -64,6 +64,10 @@ Run the suite inside Sail. `phpunit.xml` switches the database to `testing`, so 
 
 Running tests with host PHP is not supported: compiled Blade views in `storage/framework/views` are shared between the host and the container and contain container paths, so mixing both breaks view rendering on whichever side did not compile them (`php artisan view:clear` on that side recovers).
 
+## Languages
+
+The platform is available in English and Turkish (`app.supported_locales`). Every page carries the language as its first path segment (`/en/dashboard`, `/tr/login`); an unprefixed URL such as `/dashboard` redirects to the signed-in user's stored language or the visitor's last choice. Opening a page in another language makes it the stored preference. Each language keeps its files in its own folder (`lang/en`, `lang/tr`): Laravel's `auth`, `pagination`, `passwords` and `validation` files, which `php artisan lang:publish --force` may overwrite in `lang/en`, and the application's `common` and `pages` files. Use short keys such as `__('pages.settings.profile.title')`, add the English line to `lang/en` and the same key to every other language folder; a test fails when a line is missing. Strings that Laravel, Fortify and Flux pass by their English text (error page titles, notification emails, Fortify messages, Flux labels) are translated in `lang/{locale}.json` with that text as the key (`"Not Found": "Bulunamadı"` in `lang/tr.json`); English needs no JSON file, and the key must match the package text exactly.
+
 ## Tenant subdomains locally
 
 Tenant sites will be served on `{subdomain}.localhost` (for example `http://acme.localhost`). Platform pages (login, dashboard, settings) answer only on the `APP_URL` host (`localhost`) and return 404 on any other host; in production company sites live under the same domain (e.g. `acme.firmhub.com` next to `firmhub.com`). Outside the local environment, requests for hosts other than the `APP_URL` host and its single-label subdomains are rejected with 400 before reaching the application. When using a tunnel such as ngrok, set `APP_URL` to the tunnel URL. Chrome, Firefox, Edge and curl resolve `*.localhost` to the loopback address without configuration; Safari behavior is not yet verified. A dnsmasq setup for `*.firmhub.test` is the documented fallback ([0.4 §8.1](docs/phase-0/0.4-subdomain-domain-and-publishing.md)).
@@ -88,4 +92,4 @@ Platform admins are not yet required to use two-factor authentication ([DECISION
 
 ## License
 
-The project license has not been decided yet (owner decision OD-1 in [docs/DECISIONS.md](docs/DECISIONS.md)). The `license` field in `composer.json` is inherited from the starter kit and does not represent that decision; a `LICENSE` file will be added once it is made.
+FirmHub is open-source software licensed under the [MIT license](LICENSE).

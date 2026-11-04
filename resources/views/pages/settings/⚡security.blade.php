@@ -7,11 +7,11 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
-use Livewire\Attributes\Title;
+use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
-new #[Title('Security settings')] class extends Component {
+new class extends Component {
     use PasswordValidationRules;
 
     public string $current_password = '';
@@ -65,7 +65,7 @@ new #[Title('Security settings')] class extends Component {
 
         $this->reset('current_password', 'password', 'password_confirmation');
 
-        Flux::toast(variant: 'success', text: __('Password updated.'));
+        Flux::toast(variant: 'success', text: __('pages.settings.security.password_updated'));
     }
 
 
@@ -87,18 +87,26 @@ new #[Title('Security settings')] class extends Component {
 
         $this->twoFactorEnabled = false;
     }
+
+    /**
+     * Render the component with its page title in the current language.
+     */
+    public function render(): View
+    {
+        return $this->view()->title(__('pages.settings.security.page_title'));
+    }
 }; ?>
 
 <section class="w-full">
     @include('partials.settings-heading')
 
-    <flux:heading level="2" class="sr-only">{{ __('Security settings') }}</flux:heading>
+    <flux:heading level="2" class="sr-only">{{ __('pages.settings.security.page_title') }}</flux:heading>
 
-    <x-pages::settings.layout :heading="__('Update password')" :subheading="__('Ensure your account is using a long, random password to stay secure')">
+    <x-pages::settings.layout :heading="__('pages.settings.security.update_password')" :subheading="__('pages.settings.security.update_password_description')">
         <form method="POST" wire:submit="updatePassword" class="mt-6 space-y-6">
             <flux:input
                 wire:model="current_password"
-                :label="__('Current password')"
+                :label="__('pages.settings.security.current_password')"
                 type="password"
                 required
                 autocomplete="current-password"
@@ -106,7 +114,7 @@ new #[Title('Security settings')] class extends Component {
             />
             <flux:input
                 wire:model="password"
-                :label="__('New password')"
+                :label="__('pages.settings.security.new_password')"
                 type="password"
                 required
                 autocomplete="new-password"
@@ -115,7 +123,7 @@ new #[Title('Security settings')] class extends Component {
             />
             <flux:input
                 wire:model="password_confirmation"
-                :label="__('Confirm password')"
+                :label="__('common.confirm_password')"
                 type="password"
                 required
                 autocomplete="new-password"
@@ -125,21 +133,21 @@ new #[Title('Security settings')] class extends Component {
 
             <div class="flex items-center gap-4">
                 <flux:button variant="primary" type="submit" data-test="update-password-button">
-                    {{ __('Save') }}
+                    {{ __('common.save') }}
                 </flux:button>
             </div>
         </form>
 
         @if ($canManageTwoFactor)
             <section class="mt-12">
-                <flux:heading>{{ __('Two-factor authentication') }}</flux:heading>
-                <flux:subheading>{{ __('Manage your two-factor authentication settings') }}</flux:subheading>
+                <flux:heading>{{ __('common.two_factor_authentication') }}</flux:heading>
+                <flux:subheading>{{ __('pages.settings.two_factor.description') }}</flux:subheading>
 
                 <div class="flex flex-col w-full mx-auto space-y-6 text-sm" wire:cloak>
                     @if ($twoFactorEnabled)
                         <div class="space-y-4">
                             <flux:text>
-                                {{ __('You will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.') }}
+                                {{ __('pages.settings.two_factor.enabled_description') }}
                             </flux:text>
 
                             <div class="flex justify-start">
@@ -147,7 +155,7 @@ new #[Title('Security settings')] class extends Component {
                                     variant="danger"
                                     wire:click="disable"
                                 >
-                                    {{ __('Disable 2FA') }}
+                                    {{ __('pages.settings.two_factor.disable') }}
                                 </flux:button>
                             </div>
 
@@ -156,7 +164,7 @@ new #[Title('Security settings')] class extends Component {
                     @else
                         <div class="space-y-4">
                             <flux:text variant="subtle">
-                                {{ __('When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.') }}
+                                {{ __('pages.settings.two_factor.disabled_description') }}
                             </flux:text>
 
                             <flux:modal.trigger name="two-factor-setup-modal">
@@ -164,7 +172,7 @@ new #[Title('Security settings')] class extends Component {
                                     variant="primary"
                                     wire:click="$dispatch('start-two-factor-setup')"
                                 >
-                                    {{ __('Enable 2FA') }}
+                                    {{ __('pages.settings.two_factor.enable') }}
                                 </flux:button>
                             </flux:modal.trigger>
 

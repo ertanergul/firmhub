@@ -48,3 +48,17 @@ function something()
 {
     // ..
 }
+
+/**
+ * The fetch metadata a browser sends when the user opens a page.
+ *
+ * @return array<string, string>
+ */
+function pageOpenedFrom(string $fetchSite): array
+{
+    return [
+        'Sec-Fetch-Site' => $fetchSite,
+        'Sec-Fetch-Mode' => 'navigate',
+        'Sec-Fetch-Dest' => 'document',
+    ];
+}

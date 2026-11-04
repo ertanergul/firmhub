@@ -9,6 +9,12 @@ test('profile page is displayed', function () {
     $this->get(route('profile.edit'))->assertOk();
 });
 
+test('the settings page redirects to the profile settings in the same language', function () {
+    $this->actingAs(User::factory()->create())
+        ->get('/tr/settings')
+        ->assertRedirect('/tr/settings/profile');
+});
+
 test('profile information can be updated', function () {
     $user = User::factory()->create();
 
