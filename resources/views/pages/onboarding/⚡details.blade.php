@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\Company\CompleteCompanyOnboarding;
+use App\Actions\Company\UpdateCompanyProfile;
 use App\Models\Company;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -60,18 +61,7 @@ new #[Layout('layouts::auth')] class extends Component {
 
         $this->authorize('completeOnboarding', $company);
 
-        $phone = ['nullable', 'string', 'regex:/^\+?[0-9 ()-]{7,20}$/'];
-
-        $validated = $this->validate([
-            'contact_email' => ['required', 'string', 'email', 'max:254'],
-            'phone' => $phone,
-            'whatsapp_phone' => $phone,
-            'address_line1' => ['required', 'string', 'max:255'],
-            'address_line2' => ['nullable', 'string', 'max:255'],
-            'region' => ['nullable', 'string', 'max:100'],
-            'city' => ['required', 'string', 'max:100'],
-            'postal_code' => ['nullable', 'string', 'max:20'],
-        ]);
+        $validated = $this->validate(UpdateCompanyProfile::contactRules());
 
         $completeCompanyOnboarding->handle($company, array_map(fn (string $value): ?string => $value === '' ? null : $value, $validated));
 
@@ -103,25 +93,25 @@ new #[Layout('layouts::auth')] class extends Component {
     <x-auth-header :title="__('pages.onboarding.details.title')" :description="__('pages.onboarding.details.description')" />
 
     <form wire:submit="save" class="flex flex-col gap-6">
-        <flux:input wire:model="contact_email" :label="__('pages.onboarding.details.contact_email')" type="email" required autocomplete="email" />
+        <flux:input wire:model="contact_email" :label="__('pages.company.fields.contact_email')" type="email" required autocomplete="email" />
 
-        <flux:input wire:model="phone" :label="__('pages.onboarding.details.phone')" type="tel" autocomplete="tel" />
+        <flux:input wire:model="phone" :label="__('pages.company.fields.phone')" type="tel" autocomplete="tel" />
 
-        <flux:input wire:model="whatsapp_phone" :label="__('pages.onboarding.details.whatsapp_phone')" type="tel" />
+        <flux:input wire:model="whatsapp_phone" :label="__('pages.company.fields.whatsapp_phone')" type="tel" />
 
         <flux:separator variant="subtle" />
 
-        <flux:input wire:model="address_line1" :label="__('pages.onboarding.details.address_line1')" required autocomplete="address-line1" />
+        <flux:input wire:model="address_line1" :label="__('pages.company.fields.address_line1')" required autocomplete="address-line1" />
 
-        <flux:input wire:model="address_line2" :label="__('pages.onboarding.details.address_line2')" autocomplete="address-line2" />
+        <flux:input wire:model="address_line2" :label="__('pages.company.fields.address_line2')" autocomplete="address-line2" />
 
         <div class="grid gap-6 sm:grid-cols-2">
-            <flux:input wire:model="region" :label="__('pages.onboarding.details.region')" autocomplete="address-level2" />
+            <flux:input wire:model="region" :label="__('pages.company.fields.region')" autocomplete="address-level2" />
 
-            <flux:input wire:model="city" :label="__('pages.onboarding.details.city')" required autocomplete="address-level1" />
+            <flux:input wire:model="city" :label="__('pages.company.fields.city')" required autocomplete="address-level1" />
         </div>
 
-        <flux:input wire:model="postal_code" :label="__('pages.onboarding.details.postal_code')" autocomplete="postal-code" />
+        <flux:input wire:model="postal_code" :label="__('pages.company.fields.postal_code')" autocomplete="postal-code" />
 
         <flux:button variant="primary" type="submit" class="w-full" data-test="finish-onboarding-button">
             {{ __('pages.onboarding.details.submit') }}

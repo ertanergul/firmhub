@@ -13,6 +13,7 @@ return [
     */
 
     'dashboard' => 'Dashboard',
+    'company' => 'Company',
     'settings' => 'Settings',
     'account' => 'Account',
     'language' => 'Language',

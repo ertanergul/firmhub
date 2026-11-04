@@ -13,6 +13,7 @@ return [
     */
 
     'dashboard' => 'Panel',
+    'company' => 'Şirket',
     'settings' => 'Ayarlar',
     'account' => 'Hesap',
     'language' => 'Dil',

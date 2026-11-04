@@ -15,6 +15,7 @@ Route::domain(config('app.host'))->group(function () {
 
                 Route::middleware('onboarded')->group(function () {
                     Route::view('dashboard', 'dashboard')->name('dashboard');
+                    Route::livewire('dashboard/company', 'pages::company.profile')->name('company.profile');
                 });
             });
         });
