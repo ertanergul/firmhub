@@ -3,6 +3,7 @@
 use App\Concerns\PasswordValidationRules;
 use App\Livewire\Actions\Logout;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 new class extends Component {
@@ -11,10 +12,14 @@ new class extends Component {
     public string $password = '';
 
     /**
-     * Delete the currently authenticated user.
+     * Delete the currently authenticated user, unless they are the last Owner of a company (0.2 RM-8).
      */
     public function deleteUser(Logout $logout): void
     {
+        if (Auth::user()->isLastOwnerOfACompany()) {
+            throw ValidationException::withMessages(['password' => __('pages.settings.delete_account.last_owner')]);
+        }
+
         $this->validate([
             'password' => $this->currentPasswordRules(),
         ]);

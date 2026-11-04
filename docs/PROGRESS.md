@@ -7,9 +7,9 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 2 — Companies & Tenancy (proof of concept) |
-| Last approved task | 2.4 Company Onboarding (2026-11-04) |
-| Current task | 2.5 Company Profile |
-| Next task | 2.9 Account Deletion Guard |
+| Last approved task | 2.5 Company Profile (2026-11-04) |
+| Current task | 2.9 Account Deletion Guard |
+| Next task | Phase 2 proof-of-concept review, then a minimal Phase 3 (to be planned) |
 | Deferred | Phase 1: 1.5, 1.9, 1.10 (Phase 1 closed with exceptions; required before Phase 7). Phase 2: 2.6, 2.7, 2.8, 2.10 (after the proof of concept) |
 
 ## Phase 1 tasks
@@ -40,11 +40,11 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 2.2 | Companies & Owner Membership | Approved | `d15348c` |
 | 2.3 | Dashboard Authorization | Approved | `f84d2a9` (PR #22) |
 | 2.4 | Company Onboarding | Approved | `d3cd2b0` (PR #23) |
-| 2.5 | Company Profile | In review | — |
+| 2.5 | Company Profile | Approved | `c9f57b5` (PR #24) |
 | 2.6 | Company Switcher | Deferred (after the proof of concept) | — |
 | 2.7 | Member Management | Deferred (after the proof of concept) | — |
 | 2.8 | Invitations | Deferred (after the proof of concept) | — |
-| 2.9 | Account Deletion Guard | Not started | — |
+| 2.9 | Account Deletion Guard | In review | — |
 | 2.10 | Company Deletion Lifecycle | Deferred (after the proof of concept) | — |
 
 ## Task 1.1 — Baseline Validation (2026-10-30)
@@ -268,3 +268,15 @@ Tenant isolation checklist (0.2 AR-14): `CompanyLocation` — only reachable thr
 | Tests | Guest redirect; every role sees the page and the loaded values in Turkish; Owner and Admin get the save button, Editor and Viewer the read-only notice; Owner saves every field (empty fields stored as null, one location); Admin changes the industry; Editor and Viewer get 403 and nothing changes; seven validation cases; a deactivated current industry is kept; the sidebar link appears only for members |
 
 Not covered by a test: the separate `changeIndustry` check, because no role in the current matrix has `update` without `changeIndustry`. Tenant isolation checklist (0.2 AR-14): `Company` and `CompanyLocation` — read and update only through the signed-in user's company; no identifier is accepted from the request; Editors and Viewers are denied updates (403, tested).
+
+## Task 2.9 — Account Deletion Guard (2026-11-04)
+
+| Change | Detail |
+|---|---|
+| Rule | `User::isLastOwnerOfACompany()`: the user is an Owner of a company that has no other Owner (0.2 RM-8) |
+| Settings → Delete account | The last Owner sees an explanation (delete the company or transfer its ownership first) instead of the delete button and modal |
+| Delete action | The modal's `deleteUser()` checks the rule again on every call and returns a validation error; the user stays signed in (0.2 AR-3) |
+| Model guard | `User::booted()` refuses to delete the last Owner from any code (`LogicException`), since memberships cascade and the database would otherwise leave the company without an Owner (RM-1) |
+| Tests | Last Owner: Turkish explanation and no button, direct action call rejected, account, membership and session kept; Owner with another Owner, Admin, Editor and Viewer can delete their account and the company stays; the model guard; the rule for co-owned companies, users without a company and Admins; the existing deletion tests pass unchanged |
+
+Consequence during the proof of concept: ownership transfer (2.7) and company deletion (2.10) are deferred, so every Owner of a single-owner company cannot delete the account until one of them exists.

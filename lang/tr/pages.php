@@ -151,6 +151,7 @@ return [
             'description' => 'Hesabınızı ve tüm verilerini silin',
             'confirm_title' => 'Hesabınızı silmek istediğinizden emin misiniz?',
             'confirm_description' => 'Hesabınız silindiğinde tüm verileri kalıcı olarak silinir. Hesabınızı kalıcı olarak silmek istediğinizi onaylamak için şifrenizi girin.',
+            'last_owner' => 'Bir şirketin tek sahibisiniz. Hesabınızı silmeden önce şirketi silmeniz ya da sahipliğini devretmeniz gerekiyor.',
         ],
 
         'security' => [
