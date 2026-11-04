@@ -73,6 +73,13 @@ return [
         ],
     ],
 
+    'company' => [
+        'errors' => [
+            'industry_unavailable' => 'This industry is no longer available. Please choose another one.',
+            'already_in_company' => 'You already belong to a company.',
+        ],
+    ],
+
     'dashboard' => [
         'welcome' => 'Welcome, :name.',
         'description' => 'Your companies and their websites will be managed here.',
