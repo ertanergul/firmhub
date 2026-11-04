@@ -7,10 +7,10 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 1 — Foundation |
-| Last approved task | 1.13 Dashboard Shell & Branding (2026-11-02) |
-| Current task | 1.12 Localization Foundation |
+| Last approved task | 1.12 Localization Foundation (2026-11-04) |
+| Current task | 1.4 CI & Dependency Automation |
 | Next task | Deferred Phase 1 tasks (owner to choose the order) |
-| Deferred | 1.4, 1.5, 1.9, 1.10 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5, E-8, E-9) |
+| Deferred | 1.5, 1.9, 1.10 (owner decision; required before Phase 2, see exit criteria E-2, E-8, E-9) |
 
 ## Phase 1 tasks
 
@@ -19,7 +19,7 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 1.1 | Baseline Validation | Approved | — (validation only) |
 | 1.2 | Project Documentation & Identity | Approved | `0d0a041` (PR #3) |
 | 1.3 | Frontend Toolchain Remediation | Approved | `80e35bc` (PR #4) |
-| 1.4 | CI & Dependency Automation | Deferred | — |
+| 1.4 | CI & Dependency Automation | In progress | — |
 | 1.5 | Test Foundation | Deferred | — |
 | 1.6 | Authentication Hardening | Approved | `c031045` (PR #5) |
 | 1.7 | Case-Insensitive Email Uniqueness | Approved | `14f86f9` (PR #8) |
@@ -27,7 +27,7 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 1.9 | Security Headers Baseline | Deferred | — |
 | 1.10 | Production Configuration Guardrails | Deferred | — |
 | 1.11 | Platform Admin Foundation | Approved | `270a392` (PR #10) |
-| 1.12 | Localization Foundation | In review | — |
+| 1.12 | Localization Foundation | Approved | `62203db` (PR #16) |
 | 1.13 | Dashboard Shell & Branding | Approved | `d25aa57`, `206d3ba` (PR #14) |
 
 ## Task 1.1 — Baseline Validation (2026-10-30)
@@ -66,11 +66,11 @@ All versions match [0.8 §1](phase-0/0.8-technology-and-infrastructure-decisions
 | # | Finding | Planned handling |
 |---|---|---|
 | F-1 | `phpunit.xml` `DB_HOST=127.0.0.1` breaks `sail artisan test` inside the container (works in CI and from the host) | **Closed** (owner request, 2026-10-30): `DB_HOST` override removed from `phpunit.xml`; Sail uses `.env`, CI sets `DB_HOST` itself. Host-PHP test runs are unsupported because of the shared compiled-view cache ([README](../README.md#running-tests)) |
-| F-2 | `livewire/livewire` 4.4.7 — `#[Authorize]` bypass, GHSA-mhf7-xp6r-6qrc (medium, fixed in 4.4.8). The project does not use `#[Authorize]` or `#[Json]` | Patch update with approval (task 1.4 or a separate task before Phase 2) |
-| F-3 | `symfony/mime` 7.4.19 — CVE-2026-45070 email header injection (medium, fixed in 7.4.22). No custom MIME parameter handling in `app/` | Patch update with approval, together with F-2 |
+| F-2 | `livewire/livewire` 4.4.7 — `#[Authorize]` bypass, GHSA-mhf7-xp6r-6qrc (medium, fixed in 4.4.8). The project does not use `#[Authorize]` or `#[Json]` | **Closed in task 1.4** — `livewire/livewire` 4.4.8 |
+| F-3 | `symfony/mime` 7.4.19 — CVE-2026-45070 email header injection (medium, fixed in 7.4.22). No custom MIME parameter handling in `app/` | **Closed in task 1.4** — `symfony/mime` 7.4.22 |
 | F-4 | `npm audit`: `tinypool` (critical, prototype pollution to RCE), `oxfmt`, `@vitest/*` — all through `vite-plus@0.3.0`; build-time tools listed under `dependencies` | **Closed in task 1.3** — `vite-plus` 1.4.0, `npm audit` reports 0 vulnerabilities |
 | F-5 | Local `.env` uses `QUEUE_CONNECTION=database`; `.env.example` and TDR-11 specify `sync` | Local file, not tracked; owner to align |
-| F-6 | CI runs only on pushes to `main` and uses Node 22 | Trigger: CI runs on pull requests into `main` and pushes to `main`, not on `develop` (owner decision 2026-11-02, see DECISIONS). Node 22 → 24: task 1.4 (MD-2) |
+| F-6 | CI runs only on pushes to `main` and uses Node 22 | Trigger: CI runs on pull requests into `main` and pushes to `main`, not on `develop` (owner decision 2026-11-02, see DECISIONS). Node 22 → 24: **closed in task 1.4** (`node-version-file: .nvmrc`) |
 
 ## Task 1.3 — Frontend Toolchain Remediation (2026-10-30)
 
@@ -167,3 +167,22 @@ magick -density 864 /tmp/apple-touch-icon.svg -resize 180x180 -background '#1818
 | Checked in the browser | `/dashboard` → `/en/login` as a guest; after login `/en/dashboard`; typed `/tr/dashboard` opens Turkish and makes `/dashboard` redirect to `/tr/dashboard`; on `/tr/settings/profile` with the stored preference set to `en`, a Livewire validation error is shown in Turkish and the preference stays `en`; no console errors |
 
 Residual risks: Turkish texts are machine-assisted and should be reviewed by a native speaker before launch; Flux strings of Pro components and Laravel strings not used by the application are not translated. Open follow-up (owner, 2026-11-04): `RedirectToLocalizedPathController` answers 404 for any unprefixed path whose last segment contains a dot, so once pages take domain names as path segments (Phase 5 custom domains, e.g. `/sites/example.com`) an unprefixed link would 404 instead of redirecting; narrow the rule (known file extensions or names starting with a dot) before such routes are added.
+
+## Task 1.4 — CI & Dependency Automation (2026-11-04)
+
+| Change | Detail |
+|---|---|
+| Security patches | `livewire/livewire` 4.4.7 → 4.4.8 (GHSA-mhf7-xp6r-6qrc) and `symfony/mime` 7.4.19 → 7.4.22 (CVE-2026-45070), updated alone with `composer update livewire/livewire symfony/mime`; `composer audit` reports no advisories (F-2, F-3) |
+| CI trigger | Pull requests into `main` and pushes to `main` only (owner rule: workflows and Dependabot always work on `main`); `develop` is tested locally |
+| CI steps | Node from `.nvmrc` (24, was 22); `composer audit --locked` and `npm audit --audit-level=high` before the setup; migration rollback check after the setup (`migrate:fresh` → `migrate:rollback` → `migrate`, all with `--force`), then the existing `composer ci:check` (Pint, Larastan, Pest) |
+| Dependabot | `composer` and `npm` added next to `github-actions`; all three weekly, `target-branch: main`, cooldown 5 days (30 days for major versions of Composer and npm packages); minor and patch updates grouped per ecosystem, major updates in their own pull requests |
+| `laravel/chisel` | Installed by the starter kit, not referenced by application code, configuration or tests; kept by owner decision |
+
+| Check | Result |
+|---|---|
+| `composer audit --locked` | Exit 1 with the previous lock file (2 advisories), exit 0 after the patches (run in the Sail container on copies of the lock files) |
+| `npm audit --audit-level=high` | Exit 1 for a lock-only copy with `lodash` 4.17.20 (high advisories, no code installed), exit 0 for the project |
+| Migration rollback check | Exit 0 on the Sail `testing` database; exit 1 with a temporary migration whose `down()` drops a missing table (probe removed, `testing` rebuilt; the development database was not touched) |
+| Workflow and Dependabot files | Parsed as YAML; GitHub validates both after the push |
+
+Not verified here: the workflow run on GitHub and Dependabot's acceptance of the configuration need a push and are checked on the next pull request into `main` or Dependabot's first pull request (also into `main`). Dependabot security updates (separate from version updates) are a repository setting the owner enables on GitHub.
