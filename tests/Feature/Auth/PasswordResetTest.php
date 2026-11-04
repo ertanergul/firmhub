@@ -39,7 +39,7 @@ test('reset password link response does not reveal whether an account exists', f
     foreach ([$knownResponse, $unknownResponse] as $response) {
         $response->assertRedirect(route('password.request'))
             ->assertSessionHasNoErrors()
-            ->assertSessionHas('status', __('If an account exists for that email address, a password reset link has been sent.'));
+            ->assertSessionHas('status', __('pages.authentication.forgot_password.link_sent'));
     }
 
     Notification::assertSentTo($user, ResetPassword::class);
@@ -109,7 +109,7 @@ test('reset password links ignore forwarded hosts from untrusted addresses', fun
     $links = sentPasswordResetLinks();
 
     expect($links)->toHaveCount(1)
-        ->and($links[0])->toStartWith(config('app.url').'/reset-password/');
+        ->and($links[0])->toStartWith(config('app.url').'/en/reset-password/');
 });
 
 test('reset password requests forwarded by a proxy for another host are not handled', function () {
@@ -126,6 +126,27 @@ test('reset password requests forwarded by a proxy for another host are not hand
     expect(sentPasswordResetLinks())->toBeEmpty();
 });
 
+test('reset password emails are sent in the user\'s language with links in that language', function () {
+    $user = User::factory()->create(['locale' => 'tr']);
+
+    $this->post(route('password.email', ['locale' => 'en']), ['email' => $user->email]);
+
+    expect(sentMailSubjects())->toBe(['Şifrenizi sıfırlayın'])
+        ->and(sentPasswordResetLinks()[0])->toStartWith(config('app.url').'/tr/reset-password/')
+        ->and(route('home'))->toBe(config('app.url').'/en');
+});
+
+test('reset password emails fall back to the default language for unsupported stored languages', function (string $locale) {
+    $user = User::factory()->create(['locale' => $locale]);
+
+    $this->post(route('password.email'), ['email' => $user->email]);
+
+    expect(sentMailSubjects())->toBe(['Reset your password']);
+})->with([
+    'unknown language' => 'xx',
+    'path characters' => 'tr/..',
+]);
+
 /**
  * Extract the password reset links from the emails captured by the array mail transport.
  *
@@ -139,6 +160,19 @@ function sentPasswordResetLinks(): array
 
             return array_unique($matches[0]);
         })
+        ->values()
+        ->all();
+}
+
+/**
+ * The subjects of the emails captured by the array mail transport.
+ *
+ * @return array<int, string|null>
+ */
+function sentMailSubjects(): array
+{
+    return app('mailer')->getSymfonyTransport()->messages()
+        ->map(fn ($message): ?string => $message->getOriginalMessage()->getSubject())
         ->values()
         ->all();
 }

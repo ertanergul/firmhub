@@ -65,3 +65,14 @@ test('registration cannot create a platform admin', function () {
 
     expect(User::where('email', 'test@example.com')->sole()->is_platform_admin)->toBeFalse();
 });
+
+test('registration stores the language of the page as the user\'s preference', function () {
+    $this->post(route('register.store', ['locale' => 'tr']), [
+        'name' => 'John Doe',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    expect(User::where('email', 'test@example.com')->sole()->locale)->toBe('tr');
+});

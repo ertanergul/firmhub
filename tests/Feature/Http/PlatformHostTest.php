@@ -11,11 +11,13 @@ test('platform pages are not reachable on tenant hosts', function (string $metho
 
     $response->assertNotFound();
 })->with([
-    'home' => ['GET', '/'],
-    'login page' => ['GET', '/login'],
-    'login submission' => ['POST', '/login'],
-    'dashboard' => ['GET', '/dashboard'],
-    'profile settings' => ['GET', '/settings/profile'],
+    'root' => ['GET', '/'],
+    'home' => ['GET', '/en'],
+    'login page' => ['GET', '/en/login'],
+    'login submission' => ['POST', '/en/login'],
+    'dashboard' => ['GET', '/en/dashboard'],
+    'profile settings' => ['GET', '/en/settings/profile'],
+    'unprefixed path' => ['GET', '/dashboard'],
 ]);
 
 test('the livewire update endpoint only matches the platform host', function () {
@@ -31,10 +33,23 @@ test('the livewire update endpoint only matches the platform host', function () 
 test('platform pages are reachable on the platform host', function () {
     $user = User::factory()->create();
 
-    $this->get('http://localhost/login')->assertOk();
-    $this->actingAs($user)->get('http://localhost/dashboard')->assertOk();
+    $this->get('http://localhost/en/login')->assertOk();
+    $this->actingAs($user)->get('http://localhost/en/dashboard')->assertOk();
 });
 
 test('the health check is reachable on tenant hosts', function () {
     $this->get('http://acme.localhost/up')->assertOk();
+});
+
+test('the platform host is kept in lower case', function () {
+    $server = $_SERVER;
+    $environment = $_ENV;
+    $_SERVER['APP_URL'] = $_ENV['APP_URL'] = 'https://FirmHub.Test';
+
+    try {
+        expect((require config_path('app.php'))['host'])->toBe('firmhub.test');
+    } finally {
+        $_SERVER = $server;
+        $_ENV = $environment;
+    }
 });

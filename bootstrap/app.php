@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\ThrottleAuthenticationRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ], subdomains: false);
 
         $middleware->web(append: [
+            SetLocale::class,
             ThrottleAuthenticationRequests::class,
         ]);
     })

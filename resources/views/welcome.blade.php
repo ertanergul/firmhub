@@ -13,20 +13,22 @@
             </div>
 
             <div class="flex max-w-md flex-col gap-2">
-                <flux:text size="lg">{{ __('Create, edit and publish your company website from one dashboard.') }}</flux:text>
+                <flux:text size="lg">{{ __('pages.welcome.tagline') }}</flux:text>
             </div>
 
-            <nav class="flex flex-wrap items-center justify-center gap-3" aria-label="{{ __('Account') }}">
+            <nav class="flex flex-wrap items-center justify-center gap-3" aria-label="{{ __('common.account') }}">
                 @auth
-                    <flux:button variant="primary" :href="route('dashboard')">{{ __('Dashboard') }}</flux:button>
+                    <flux:button variant="primary" :href="route('dashboard')">{{ __('common.dashboard') }}</flux:button>
                 @else
-                    <flux:button variant="primary" :href="route('login')">{{ __('Log in') }}</flux:button>
+                    <flux:button variant="primary" :href="route('login')">{{ __('common.log_in') }}</flux:button>
 
                     @if (Route::has('register'))
-                        <flux:button :href="route('register')">{{ __('Register') }}</flux:button>
+                        <flux:button :href="route('register')">{{ __('common.register') }}</flux:button>
                     @endif
                 @endauth
             </nav>
+
+            <x-locale-switcher />
         </main>
 
         @fluxScripts
