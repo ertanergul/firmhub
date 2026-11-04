@@ -80,6 +80,18 @@ return [
         ],
     ],
 
+    'onboarding' => [
+        'company' => [
+            'page_title' => 'Create your company',
+            'title' => 'Create your company',
+            'description' => 'Tell us your company name and industry to get started.',
+            'name' => 'Company name',
+            'industry' => 'Industry',
+            'industry_placeholder' => 'Choose an industry',
+            'submit' => 'Create company',
+        ],
+    ],
+
     'dashboard' => [
         'welcome' => 'Welcome, :name.',
         'description' => 'Your companies and their websites will be managed here.',

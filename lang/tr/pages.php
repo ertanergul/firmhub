@@ -80,6 +80,18 @@ return [
         ],
     ],
 
+    'onboarding' => [
+        'company' => [
+            'page_title' => 'Şirketinizi oluşturun',
+            'title' => 'Şirketinizi oluşturun',
+            'description' => 'Başlamak için şirketinizin adını ve sektörünü girin.',
+            'name' => 'Şirket adı',
+            'industry' => 'Sektör',
+            'industry_placeholder' => 'Bir sektör seçin',
+            'submit' => 'Şirketi oluştur',
+        ],
+    ],
+
     'dashboard' => [
         'welcome' => 'Hoş geldiniz, :name.',
         'description' => 'Şirketleriniz ve web siteleri burada yönetilecek.',

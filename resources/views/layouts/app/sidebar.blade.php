@@ -10,6 +10,10 @@
                 <flux:sidebar.collapse class="lg:hidden" />
             </flux:sidebar.header>
 
+            @if (auth()->user()->company)
+                <flux:text class="truncate px-2 font-medium" data-test="sidebar-company">{{ auth()->user()->company->name }}</flux:text>
+            @endif
+
             {{-- Company sections (site, media, messages, company, members; 0.5 §10) are added as groups here once their pages exist. --}}
             <flux:sidebar.nav>
                 <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>

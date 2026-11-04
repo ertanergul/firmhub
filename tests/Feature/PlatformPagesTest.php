@@ -14,7 +14,7 @@ test('guest platform pages are not indexed', function (string $routeName) {
 ]);
 
 test('authenticated platform pages are not indexed', function (string $routeName) {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(companyOwner())
         ->get(route($routeName))
         ->assertOk()
         ->assertSee('<meta name="robots" content="noindex, nofollow" />', false);
@@ -38,7 +38,7 @@ test('the home page links authenticated users to the dashboard', function () {
 });
 
 test('the dashboard shows the firmhub brand without starter kit links', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(companyOwner())
         ->get(route('dashboard'))
         ->assertSee(config('app.name'))
         ->assertDontSee('github.com/laravel', false)

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -72,6 +73,16 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     public function membership(): HasOne
     {
         return $this->hasOne(CompanyMembership::class);
+    }
+
+    /**
+     * Get the user's company through their membership (proof of concept: one company per user).
+     *
+     * @return HasOneThrough<Company, CompanyMembership, $this>
+     */
+    public function company(): HasOneThrough
+    {
+        return $this->hasOneThrough(Company::class, CompanyMembership::class, 'user_id', 'id', 'id', 'company_id');
     }
 
     /**

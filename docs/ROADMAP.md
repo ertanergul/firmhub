@@ -77,8 +77,8 @@ flowchart LR
 | 2.0 | Phase 1 Closure & Phase 2 Plan | Record the Phase 1 exceptions and the proof-of-concept scope; documentation only |
 | 2.1 | Industry Catalog | `industries` table, model and seeder; labels in `lang/{locale}/industries.php` (0.3 D-8) |
 | 2.2 | Companies & Owner Membership | `companies` and `company_memberships` (UUIDv7 keys, constraints), `CompanyRole` and `CompanyPermission` enums, `CreateCompany` action creating the company and the Owner membership in one transaction; verified users only; one company per user |
-| 2.3 | Dashboard Authorization | `CurrentCompany` middleware on `/{locale}/dashboard`, `CompanyPolicy` and the role permission matrix, tenant test helpers, route inventory test |
-| 2.4 | Company Onboarding | Resumable onboarding: name and industry, contact details, primary location (`company_locations`); `onboarding_completed_at` |
+| 2.3 | Dashboard Authorization | Company middleware on `/{locale}/dashboard`, `CompanyPolicy` and the role permission matrix, tenant test helpers, route inventory test, first onboarding step (company name and industry) |
+| 2.4 | Company Onboarding | Resumable onboarding after the company exists: contact details, primary location (`company_locations`); `onboarding_completed_at` |
 | 2.5 | Company Profile | Company page: profile, contact details, location, optional legal information, industry (Owner and Admin) |
 | 2.9 | Account Deletion Guard | The last Owner of a company cannot delete the account (0.2 RM-8) |
 

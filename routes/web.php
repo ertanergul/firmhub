@@ -8,7 +8,11 @@ Route::domain(config('app.host'))->group(function () {
         Route::view('/', 'welcome')->name('home');
 
         Route::middleware(['auth', 'verified'])->group(function () {
-            Route::view('dashboard', 'dashboard')->name('dashboard');
+            Route::livewire('onboarding', 'pages::onboarding.company')->name('onboarding');
+
+            Route::middleware('company')->group(function () {
+                Route::view('dashboard', 'dashboard')->name('dashboard');
+            });
         });
 
         require __DIR__.'/settings.php';
