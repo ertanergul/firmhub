@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Actions\Localization\UpdateLocalePreference;
+use App\Enums\CompanyRole;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
@@ -16,6 +17,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use LogicException;
 
 /**
  * @property int $id
@@ -51,6 +53,20 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     ];
 
     /**
+     * Never delete the last Owner of a company, whichever code deletes the user (0.2 RM-1, RM-8).
+     *
+     * Memberships cascade with the user, so the database alone would leave the company without an Owner.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user): void {
+            if ($user->isLastOwnerOfACompany()) {
+                throw new LogicException('The last owner of a company cannot be deleted.');
+            }
+        });
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -83,6 +99,22 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     public function company(): HasOneThrough
     {
         return $this->hasOneThrough(Company::class, CompanyMembership::class, 'user_id', 'id', 'id', 'company_id');
+    }
+
+    /**
+     * Determine whether the user is an Owner of a company that has no other Owner (0.2 RM-8).
+     */
+    public function isLastOwnerOfACompany(): bool
+    {
+        return CompanyMembership::query()
+            ->whereBelongsTo($this)
+            ->where('role', CompanyRole::Owner)
+            ->whereNotExists(fn ($query) => $query->selectRaw('1')
+                ->from('company_memberships as other_owners')
+                ->whereColumn('other_owners.company_id', 'company_memberships.company_id')
+                ->whereColumn('other_owners.user_id', '!=', 'company_memberships.user_id')
+                ->where('other_owners.role', CompanyRole::Owner->value))
+            ->exists();
     }
 
     /**

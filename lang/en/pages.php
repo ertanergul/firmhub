@@ -151,6 +151,7 @@ return [
             'description' => 'Delete your account and all of its resources',
             'confirm_title' => 'Are you sure you want to delete your account?',
             'confirm_description' => 'Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.',
+            'last_owner' => 'You are the only owner of a company. Delete the company or transfer its ownership before deleting your account.',
         ],
 
         'security' => [
