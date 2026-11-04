@@ -32,11 +32,14 @@ composer install            # or run it through the laravelsail/php83-composer i
 vendor/bin/sail up -d
 vendor/bin/sail artisan key:generate
 vendor/bin/sail artisan migrate
+vendor/bin/sail artisan db:seed --class=IndustrySeeder
 npm install
 npm run build
 ```
 
 The application is available at <http://localhost> (`APP_PORT`, default `80`). The PostgreSQL container creates the `firmhub` development database and a separate `testing` database on first start.
+
+`IndustrySeeder` adds the industries offered during onboarding. It is safe to run again (it only adds missing industries and keeps their order) and must also run on every deployment: `php artisan db:seed --class=IndustrySeeder --force`. Industry names live in `lang/{locale}/industries.php`, keyed by slug.
 
 `.npmrc` sets `ignore-scripts=true`; packages that need install scripts must be handled explicitly.
 

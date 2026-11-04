@@ -7,9 +7,9 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 2 — Companies & Tenancy (proof of concept) |
-| Last approved task | 1.4 CI & Dependency Automation (2026-11-04) |
-| Current task | 2.0 Phase 1 Closure & Phase 2 Plan |
-| Next task | 2.1 Industry Catalog |
+| Last approved task | 2.0 Phase 1 Closure & Phase 2 Plan (2026-11-04) |
+| Current task | 2.1 Industry Catalog |
+| Next task | 2.2 Companies & Owner Membership |
 | Deferred | Phase 1: 1.5, 1.9, 1.10 (Phase 1 closed with exceptions; required before Phase 7). Phase 2: 2.6, 2.7, 2.8, 2.10 (after the proof of concept) |
 
 ## Phase 1 tasks
@@ -35,8 +35,8 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 
 | Task | Name | Status | Commit |
 |---|---|---|---|
-| 2.0 | Phase 1 Closure & Phase 2 Plan | In review | — |
-| 2.1 | Industry Catalog | Not started | — |
+| 2.0 | Phase 1 Closure & Phase 2 Plan | Approved | `7a213fb` (PR #19) |
+| 2.1 | Industry Catalog | In review | — |
 | 2.2 | Companies & Owner Membership | Not started | — |
 | 2.3 | Dashboard Authorization | Not started | — |
 | 2.4 | Company Onboarding | Not started | — |
@@ -203,3 +203,14 @@ Residual risks: Turkish texts are machine-assisted and should be reviewed by a n
 | Workflow and Dependabot files | Parsed as YAML; GitHub validates both after the push |
 
 Not verified here: the workflow run on GitHub and Dependabot's acceptance of the configuration need a push and are checked on the next pull request into `main` or Dependabot's first pull request (also into `main`). Dependabot security updates (separate from version updates) are a repository setting the owner enables on GitHub.
+
+## Task 2.1 — Industry Catalog (2026-11-04)
+
+| Change | Detail |
+|---|---|
+| Table | `industries`: `bigint` identity key, `slug` (`text`, unique, CHECK lowercase words joined by hyphens so it is a valid language key), `is_active` (default `true`), `sort_order`, `timestampsTz()` (0.3 §5.2, C-6); no `name` column |
+| Model | `Industry` with the `offered()` scope (active industries in display order) and `label()` (name in the current language); deactivated, never deleted |
+| Catalog | `IndustrySeeder` with three industries for the proof of concept: `retail`, `legal`, `other`; adds missing industries and keeps the order, leaves the active state of existing ones; called from `DatabaseSeeder` and documented in the README for every deployment |
+| Labels | `lang/en/industries.php` (Retail, Legal Services, Other) and `lang/tr/industries.php` (Perakende, Hukuk Hizmetleri, Diğer), keyed by slug (0.3 D-8) |
+| Applied to | Local development database `firmhub`: migration run and `IndustrySeeder` seeded (owner approval, 2026-11-04) |
+| Tests | Unique slug and slug format on PostgreSQL; seeder order and idempotence; deactivated industries stay hidden; `offered()` filtering and order; label in the current language; every seeded industry labelled in every language (plus the existing language-folder parity test) |
