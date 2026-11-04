@@ -19,6 +19,12 @@
                 <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                     {{ __('common.dashboard') }}
                 </flux:sidebar.item>
+
+                @if (auth()->user()->company)
+                    <flux:sidebar.item icon="building-office" :href="route('company.profile')" :current="request()->routeIs('company.profile')" wire:navigate>
+                        {{ __('common.company') }}
+                    </flux:sidebar.item>
+                @endif
             </flux:sidebar.nav>
 
             <flux:spacer />

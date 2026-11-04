@@ -7,9 +7,9 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 2 — Companies & Tenancy (proof of concept) |
-| Last approved task | 2.3 Dashboard Authorization (2026-11-04) |
-| Current task | 2.4 Company Onboarding |
-| Next task | 2.5 Company Profile |
+| Last approved task | 2.4 Company Onboarding (2026-11-04) |
+| Current task | 2.5 Company Profile |
+| Next task | 2.9 Account Deletion Guard |
 | Deferred | Phase 1: 1.5, 1.9, 1.10 (Phase 1 closed with exceptions; required before Phase 7). Phase 2: 2.6, 2.7, 2.8, 2.10 (after the proof of concept) |
 
 ## Phase 1 tasks
@@ -39,8 +39,8 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 2.1 | Industry Catalog | Approved | `94b9553`, `dd4681b` |
 | 2.2 | Companies & Owner Membership | Approved | `d15348c` |
 | 2.3 | Dashboard Authorization | Approved | `f84d2a9` (PR #22) |
-| 2.4 | Company Onboarding | In review | — |
-| 2.5 | Company Profile | Not started | — |
+| 2.4 | Company Onboarding | Approved | `d3cd2b0` (PR #23) |
+| 2.5 | Company Profile | In review | — |
 | 2.6 | Company Switcher | Deferred (after the proof of concept) | — |
 | 2.7 | Member Management | Deferred (after the proof of concept) | — |
 | 2.8 | Invitations | Deferred (after the proof of concept) | — |
@@ -255,3 +255,16 @@ Tenant isolation checklist (0.2 AR-14): `Company` — read: a member of another 
 | Tests | Location constraints (one primary, country code format, email lower case); the action (saved values, `TR`, completion; second run updates the location and keeps the time); page access (guest, no company, finished company), Turkish page with the current email, completion and redirect, six validation cases with nothing saved, Turkish error message, 403 for Editor and Viewer; dashboard redirect per role; route inventory now requires `onboarded` |
 
 Tenant isolation checklist (0.2 AR-14): `CompanyLocation` — only reachable through the signed-in user's company; no identifier is accepted from the request; Editors and Viewers are denied (403, tested). `Company` — unchanged from 2.3.
+
+## Task 2.5 — Company Profile (2026-11-04)
+
+| Change | Detail |
+|---|---|
+| Page | `/{locale}/dashboard/company` (`company.profile`, dashboard group so the route inventory test covers it), linked as "Company" in the sidebar for members: profile (name, industry, year founded), contact (email, phone, WhatsApp), address, optional legal information (legal name, tax number, tax office, trade registry number) |
+| Authorization | Every member can open the page (`view`); Owners and Admins edit, Editors and Viewers see the fields disabled with a notice (0.5 UX-7); saving checks `update` on every call and `changeIndustry` when the industry changes (0.2 AR-3) |
+| `UpdateCompanyProfile` | Saves the given company fields, a new industry when given and the primary location (`TR`) in one transaction; `contactRules()` and `profileRules($company)` hold the validation rules for both onboarding and the profile, like `UpdateLocalePreference::rules()`; `CompleteCompanyOnboarding` now calls it and only adds the completion time |
+| Validation | Year founded 1800 to the current year; legal fields free text up to 50 characters (0.1 Q14); the industry must be offered unless it is the company's current one, so a company keeps an industry deactivated later |
+| Labels | Field labels moved to `pages.company.fields` and shared with onboarding; Turkish attribute names for the new fields |
+| Tests | Guest redirect; every role sees the page and the loaded values in Turkish; Owner and Admin get the save button, Editor and Viewer the read-only notice; Owner saves every field (empty fields stored as null, one location); Admin changes the industry; Editor and Viewer get 403 and nothing changes; seven validation cases; a deactivated current industry is kept; the sidebar link appears only for members |
+
+Not covered by a test: the separate `changeIndustry` check, because no role in the current matrix has `update` without `changeIndustry`. Tenant isolation checklist (0.2 AR-14): `Company` and `CompanyLocation` — read and update only through the signed-in user's company; no identifier is accepted from the request; Editors and Viewers are denied updates (403, tested).

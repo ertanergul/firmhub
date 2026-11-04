@@ -70,14 +70,14 @@ new #[Layout('layouts::auth')] class extends Component {
     <form wire:submit="createCompany" class="flex flex-col gap-6">
         <flux:input
             wire:model="name"
-            :label="__('pages.onboarding.company.name')"
+            :label="__('pages.company.fields.name')"
             type="text"
             required
             autofocus
             autocomplete="organization"
         />
 
-        <flux:select wire:model="industry" :label="__('pages.onboarding.company.industry')" :placeholder="__('pages.onboarding.company.industry_placeholder')" required>
+        <flux:select wire:model="industry" :label="__('pages.company.fields.industry')" :placeholder="__('pages.company.fields.industry_placeholder')" required>
             @foreach ($this->industries as $industry)
                 <flux:select.option :value="$industry->slug" wire:key="industry-{{ $industry->slug }}">{{ $industry->label() }}</flux:select.option>
             @endforeach
