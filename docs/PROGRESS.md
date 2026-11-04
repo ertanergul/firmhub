@@ -7,9 +7,9 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 2 — Companies & Tenancy (proof of concept) |
-| Last approved task | 2.0 Phase 1 Closure & Phase 2 Plan (2026-11-04) |
-| Current task | 2.1 Industry Catalog |
-| Next task | 2.2 Companies & Owner Membership |
+| Last approved task | 2.1 Industry Catalog (2026-11-04) |
+| Current task | 2.2 Companies & Owner Membership |
+| Next task | 2.3 Dashboard Authorization |
 | Deferred | Phase 1: 1.5, 1.9, 1.10 (Phase 1 closed with exceptions; required before Phase 7). Phase 2: 2.6, 2.7, 2.8, 2.10 (after the proof of concept) |
 
 ## Phase 1 tasks
@@ -36,8 +36,8 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | Task | Name | Status | Commit |
 |---|---|---|---|
 | 2.0 | Phase 1 Closure & Phase 2 Plan | Approved | `7a213fb` (PR #19) |
-| 2.1 | Industry Catalog | In review | — |
-| 2.2 | Companies & Owner Membership | Not started | — |
+| 2.1 | Industry Catalog | Approved | `94b9553`, `dd4681b` |
+| 2.2 | Companies & Owner Membership | In review | — |
 | 2.3 | Dashboard Authorization | Not started | — |
 | 2.4 | Company Onboarding | Not started | — |
 | 2.5 | Company Profile | Not started | — |
@@ -214,3 +214,15 @@ Not verified here: the workflow run on GitHub and Dependabot's acceptance of the
 | Labels | `lang/en/industries.php` (Retail, Legal Services, Other) and `lang/tr/industries.php` (Perakende, Hukuk Hizmetleri, Diğer), keyed by slug (0.3 D-8) |
 | Applied to | Local development database `firmhub`: migration run and `IndustrySeeder` seeded (owner approval, 2026-11-04) |
 | Tests | Unique slug and slug format on PostgreSQL; seeder order and idempotence; deactivated industries stay hidden; `offered()` filtering and order; label in the current language; every seeded industry labelled in every language (plus the existing language-folder parity test) |
+
+## Task 2.2 — Companies & Owner Membership (2026-11-04)
+
+| Change | Detail |
+|---|---|
+| `companies` | UUIDv7 key (`HasUuids` generates `Str::uuid7()`, verified for 0.10 CR-12), `name`, `industry_id` (`RESTRICT`, indexed), `contact_email` (CHECK lower case), phone and WhatsApp, optional legal fields, `established_year` (CHECK 1800–2100), `onboarding_completed_at`, `suspended_at`, `suspension_reason`, soft deletes, `timestampsTz()` (0.3 §5.3) |
+| `company_memberships` | UUIDv7 key, `company_id` and `user_id` (cascade), `role` (CHECK owner/admin/editor/viewer), unique `(company_id, user_id)`, temporary unique `user_id` for the one-company rule (it also indexes the foreign key), partial owner index; `invited_by_user_id` comes with invitations (2.8) (0.3 §5.4) |
+| Enums | `App\Enums\CompanyRole` (rank Owner 4 … Viewer 1, `permissions()`, `grants()`) and `App\Enums\CompanyPermission` with the Phase 2 company permissions of 0.2 §7.1 (view, update, change industry, complete onboarding, delete) |
+| Models | `Company` (industry, onboarding and suspension fields not fillable; contact email stored in lower case), `CompanyMembership` (nothing fillable, `MassAssignmentException` on attempts), `User::membership()`; factories with `withOwner()`, `role()` and `owner()` states |
+| `CreateCompany` | `App\Actions\Company\CreateCompany::handle($owner, $name, $industry)`: verified owners only (403 otherwise), active industries only, one company per user; company and Owner membership in one transaction; a membership created by a simultaneous request makes the unique constraint fail and returns the same validation error; the contact email starts as the owner's email |
+| Applied to | Local development database `firmhub` (owner approval, 2026-11-04) |
+| Tests | PostgreSQL constraints (lower-case email, year range, industry `RESTRICT` → SQLSTATE `23001`, role values, one company per user, cascades); the action's success, unverified, inactive-industry, existing-company and simultaneous-request cases (company rolled back); mass assignment; contact email lower-casing; the role × permission matrix written out in the test (0.9 §4.2) and the role ranking |

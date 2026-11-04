@@ -73,6 +73,13 @@ return [
         ],
     ],
 
+    'company' => [
+        'errors' => [
+            'industry_unavailable' => 'Bu sektör artık kullanılmıyor. Lütfen başka bir sektör seçin.',
+            'already_in_company' => 'Zaten bir şirkete üyesiniz.',
+        ],
+    ],
+
     'dashboard' => [
         'welcome' => 'Hoş geldiniz, :name.',
         'description' => 'Şirketleriniz ve web siteleri burada yönetilecek.',

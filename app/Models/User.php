@@ -9,6 +9,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -60,6 +61,17 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
             'password' => 'hashed',
             'is_platform_admin' => 'boolean',
         ];
+    }
+
+    /**
+     * Get the user's company membership; during the proof of concept a user belongs to at
+     * most one company (DECISIONS 2026-11-04).
+     *
+     * @return HasOne<CompanyMembership, $this>
+     */
+    public function membership(): HasOne
+    {
+        return $this->hasOne(CompanyMembership::class);
     }
 
     /**
