@@ -16,7 +16,7 @@ new #[Layout('layouts::auth')] class extends Component {
     public string $industry = '';
 
     /**
-     * Send users who already have a company to their dashboard.
+     * Send users who already have a company on to the next onboarding step or their dashboard.
      */
     public function mount(): void
     {
@@ -52,7 +52,7 @@ new #[Layout('layouts::auth')] class extends Component {
             Industry::query()->where('slug', $validated['industry'])->firstOrFail(),
         );
 
-        $this->redirectRoute('dashboard', navigate: true);
+        $this->redirectRoute('onboarding.details', navigate: true);
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureCompanyMembership;
+use App\Http\Middleware\EnsureOnboardingCompleted;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\ThrottleAuthenticationRequests;
 use Illuminate\Foundation\Application;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'company' => EnsureCompanyMembership::class,
+            'onboarded' => EnsureOnboardingCompleted::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

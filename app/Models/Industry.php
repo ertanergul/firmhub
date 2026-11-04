@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Database\Factories\IndustryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 
 /**
  * A business sector chosen during onboarding (0.3 §5.2).
@@ -21,8 +21,8 @@ use Illuminate\Support\Carbon;
  * @property string $slug
  * @property bool $is_active
  * @property int $sort_order
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  */
 #[Fillable(['slug', 'is_active', 'sort_order'])]
 class Industry extends Model

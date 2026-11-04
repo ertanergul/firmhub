@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -10,8 +11,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -31,12 +32,12 @@ use Illuminate\Support\Str;
  * @property string|null $tax_office
  * @property string|null $trade_registry_number
  * @property int|null $established_year
- * @property Carbon|null $onboarding_completed_at
- * @property Carbon|null $suspended_at
+ * @property CarbonImmutable|null $onboarding_completed_at
+ * @property CarbonImmutable|null $suspended_at
  * @property string|null $suspension_reason
- * @property Carbon|null $deleted_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property CarbonImmutable|null $deleted_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  */
 #[Fillable(['name', 'contact_email', 'phone', 'whatsapp_phone', 'legal_name', 'tax_number', 'tax_office', 'trade_registry_number', 'established_year'])]
 class Company extends Model
@@ -76,6 +77,26 @@ class Company extends Model
     public function industry(): BelongsTo
     {
         return $this->belongsTo(Industry::class);
+    }
+
+    /**
+     * Get the company's locations.
+     *
+     * @return HasMany<CompanyLocation, $this>
+     */
+    public function locations(): HasMany
+    {
+        return $this->hasMany(CompanyLocation::class);
+    }
+
+    /**
+     * Get the company's primary location, shown on its site (0.5 §11).
+     *
+     * @return HasOne<CompanyLocation, $this>
+     */
+    public function primaryLocation(): HasOne
+    {
+        return $this->hasOne(CompanyLocation::class)->where('is_primary', true);
     }
 
     /**

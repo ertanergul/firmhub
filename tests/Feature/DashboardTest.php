@@ -33,12 +33,25 @@ test('members see their own company on the dashboard', function (CompanyRole $ro
         ->assertDontSee($otherCompany->name);
 })->with(CompanyRole::cases());
 
-test('every dashboard route requires a verified member of a company', function () {
+test('every dashboard route requires a verified member of an onboarded company', function () {
     $routes = collect(app('router')->getRoutes()->getRoutes())
         ->filter(fn (Route $route): bool => str_starts_with($route->uri(), '{locale}/dashboard'));
 
     expect($routes)->not->toBeEmpty();
 
-    $routes->each(fn (Route $route) => expect(array_values(array_diff(['auth', 'verified', 'company'], $route->gatherMiddleware())))
+    $routes->each(fn (Route $route) => expect(array_values(array_diff(['auth', 'verified', 'company', 'onboarded'], $route->gatherMiddleware())))
         ->toBe([], "Route {$route->uri()} is missing a middleware"));
 });
+
+test('members who may complete onboarding are sent back to it until it is done', function (CompanyRole $role, bool $redirected) {
+    $member = memberOf(Company::factory()->onboardingIncomplete()->create(), $role);
+
+    $response = $this->actingAs($member)->get(route('dashboard'));
+
+    $redirected ? $response->assertRedirect(route('onboarding.details')) : $response->assertOk();
+})->with([
+    'owner' => [CompanyRole::Owner, true],
+    'admin' => [CompanyRole::Admin, true],
+    'editor' => [CompanyRole::Editor, false],
+    'viewer' => [CompanyRole::Viewer, false],
+]);

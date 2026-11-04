@@ -90,6 +90,21 @@ return [
             'industry_placeholder' => 'Choose an industry',
             'submit' => 'Create company',
         ],
+
+        'details' => [
+            'page_title' => 'Company details',
+            'title' => 'Company details',
+            'description' => 'Add how customers can reach you and where your business is.',
+            'contact_email' => 'Contact email',
+            'phone' => 'Phone',
+            'whatsapp_phone' => 'WhatsApp',
+            'address_line1' => 'Address',
+            'address_line2' => 'Address (continued)',
+            'region' => 'District',
+            'city' => 'City',
+            'postal_code' => 'Postal code',
+            'submit' => 'Finish setup',
+        ],
     ],
 
     'dashboard' => [
