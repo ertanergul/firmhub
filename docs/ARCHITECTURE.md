@@ -40,9 +40,9 @@ flowchart TB
 
 | Context | Tenant source | Session | Authorization |
 |---|---|---|---|
-| Dashboard (`/dashboard/{company}/…`) | Company UUID in URL | Yes (host-only cookie) | Membership middleware + policies on every action |
+| Dashboard (`/{locale}/dashboard/…`; `/{locale}/dashboard/{company}/…` once users can belong to several companies) | The user's only membership during the proof of concept ([DECISIONS](DECISIONS.md#change-log), 2026-11-04); company UUID in URL later | Yes (host-only cookie) | Membership middleware + policies on every action |
 | Public site (tenant host) | Hostname → publicly visible site | None | Visibility rule only; read-only |
-| Preview (platform host) | Company in URL | Yes | `preview` permission, `no-store`, `noindex` |
+| Preview (platform host) | The dashboard's company | Yes | `preview` permission, `no-store`, `noindex` |
 | Platform admin | Cross-tenant | Artisan in MVP | Platform admin flag + 2FA; no `Gate::before` |
 
 ## Key decisions by area
