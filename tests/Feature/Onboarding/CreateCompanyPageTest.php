@@ -38,7 +38,7 @@ test('a user creates a company and becomes its owner', function () {
         ->set('industry', 'retail')
         ->call('createCompany')
         ->assertHasNoErrors()
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('onboarding.details'));
 
     expect($user->refresh()->company->name)->toBe('Acme Retail')
         ->and($user->company->industry->slug)->toBe('retail')

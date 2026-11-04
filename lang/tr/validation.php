@@ -198,14 +198,23 @@ return [
     */
 
     'attributes' => [
+        'address_line1' => 'adres',
+        'address_line2' => 'adres (devam)',
+        'city' => 'İl',
         'code' => 'kod',
+        'contact_email' => 'İletişim e-postası',
         'current_password' => 'mevcut şifre',
         'email' => 'e-posta',
+        'industry' => 'sektör',
         'locale' => 'dil',
         'name' => 'ad',
         'password' => 'şifre',
         'password_confirmation' => 'şifre onayı',
+        'phone' => 'telefon',
+        'postal_code' => 'posta kodu',
         'recovery_code' => 'kurtarma kodu',
+        'region' => 'İlçe',
+        'whatsapp_phone' => 'WhatsApp',
     ],
 
 ];

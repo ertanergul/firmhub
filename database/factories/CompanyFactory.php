@@ -24,7 +24,18 @@ class CompanyFactory extends Factory
             'name' => fake()->company(),
             'industry_id' => Industry::factory(),
             'contact_email' => fake()->unique()->safeEmail(),
+            'onboarding_completed_at' => now(),
         ];
+    }
+
+    /**
+     * Indicate that the company has not finished onboarding yet.
+     */
+    public function onboardingIncomplete(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'onboarding_completed_at' => null,
+        ]);
     }
 
     /**

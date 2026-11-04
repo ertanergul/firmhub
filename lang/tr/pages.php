@@ -90,6 +90,21 @@ return [
             'industry_placeholder' => 'Bir sektör seçin',
             'submit' => 'Şirketi oluştur',
         ],
+
+        'details' => [
+            'page_title' => 'Şirket bilgileri',
+            'title' => 'Şirket bilgileri',
+            'description' => 'Müşterilerin size nasıl ulaşacağını ve işletmenizin nerede olduğunu ekleyin.',
+            'contact_email' => 'İletişim e-postası',
+            'phone' => 'Telefon',
+            'whatsapp_phone' => 'WhatsApp',
+            'address_line1' => 'Adres',
+            'address_line2' => 'Adres (devam)',
+            'region' => 'İlçe',
+            'city' => 'İl',
+            'postal_code' => 'Posta kodu',
+            'submit' => 'Kurulumu tamamla',
+        ],
     ],
 
     'dashboard' => [

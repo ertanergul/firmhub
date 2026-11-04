@@ -7,9 +7,9 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 2 — Companies & Tenancy (proof of concept) |
-| Last approved task | 2.2 Companies & Owner Membership (2026-11-04) |
-| Current task | 2.3 Dashboard Authorization |
-| Next task | 2.4 Company Onboarding (contact details, location, completion) |
+| Last approved task | 2.3 Dashboard Authorization (2026-11-04) |
+| Current task | 2.4 Company Onboarding |
+| Next task | 2.5 Company Profile |
 | Deferred | Phase 1: 1.5, 1.9, 1.10 (Phase 1 closed with exceptions; required before Phase 7). Phase 2: 2.6, 2.7, 2.8, 2.10 (after the proof of concept) |
 
 ## Phase 1 tasks
@@ -38,8 +38,8 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 2.0 | Phase 1 Closure & Phase 2 Plan | Approved | `7a213fb` (PR #19) |
 | 2.1 | Industry Catalog | Approved | `94b9553`, `dd4681b` |
 | 2.2 | Companies & Owner Membership | Approved | `d15348c` |
-| 2.3 | Dashboard Authorization | In review | — |
-| 2.4 | Company Onboarding | Not started | — |
+| 2.3 | Dashboard Authorization | Approved | `f84d2a9` (PR #22) |
+| 2.4 | Company Onboarding | In review | — |
 | 2.5 | Company Profile | Not started | — |
 | 2.6 | Company Switcher | Deferred (after the proof of concept) | — |
 | 2.7 | Member Management | Deferred (after the proof of concept) | — |
@@ -240,3 +240,18 @@ Not verified here: the workflow run on GitHub and Dependabot's acceptance of the
 | Tests | Dashboard: guest, unverified, no company, every role sees its own company and not another one; route inventory: every `{locale}/dashboard…` route has `auth`, `verified` and `company` (feature test, no `Arch` suite); policy matrix written out per role, no abilities without a membership or in another company, role changes apply on the next check; onboarding: guest, unverified, active industries in Turkish in order, creation and redirect, validation (missing or too long name, inactive or unknown industry), redirect for users with a company. Existing dashboard tests now use users with a company |
 
 Tenant isolation checklist (0.2 AR-14): `Company` — read: a member of another company sees only their own company on the dashboard and has no policy ability on the other one; update and delete: no UI yet, denied by the policy for non-members (tested). `CompanyMembership` — not reachable through any route yet.
+
+## Task 2.4 — Company Onboarding (2026-11-04)
+
+| Change | Detail |
+|---|---|
+| `company_locations` | UUIDv7 key, `company_id` (cascade), `label`, `address_line1`, `address_line2`, `postal_code`, `city`, `region`, `country_code` (CHECK two upper-case letters), `phone`, `email` (CHECK lower case), `is_primary`, `sort_order`, `timestampsTz()`; index `(company_id, sort_order)`; partial unique index: one primary location per company (0.3 §5.6) |
+| Models | `CompanyLocation` (company not fillable, email stored in lower case); `Company::locations()` and `Company::primaryLocation()`; `CompanyFactory` now creates onboarded companies, `onboardingIncomplete()` for the rest |
+| `CompleteCompanyOnboarding` | Saves the contact details and the primary location (`country_code` `TR` during the proof of concept) and sets `onboarding_completed_at` once, in one transaction; running it again updates the same location and keeps the completion time |
+| Second step | `/{locale}/onboarding/details` (`auth`, `verified`, `company`): contact email, phone and WhatsApp, address, district, city and postal code in one form; `completeOnboarding` authorized on open and on save (0.2 AR-3); the company comes from the signed-in user; finished companies go to the dashboard. The first step now continues here |
+| Resuming | `EnsureOnboardingCompleted` (alias `onboarded`) on the dashboard: Owners and Admins of a company that has not finished onboarding are sent to the second step; Editors and Viewers see the dashboard |
+| Validation | Phone and WhatsApp: optional, digits, spaces, `+`, `-` and parentheses, 7–20 characters, stored as entered (no E.164 normalization yet); Turkish attribute names added for the onboarding fields and the 2.3 `industry` field, with `İ` written out because Laravel capitalizes `i` as `I` |
+| Applied to | Local development database `firmhub` (owner approval, 2026-11-04) |
+| Tests | Location constraints (one primary, country code format, email lower case); the action (saved values, `TR`, completion; second run updates the location and keeps the time); page access (guest, no company, finished company), Turkish page with the current email, completion and redirect, six validation cases with nothing saved, Turkish error message, 403 for Editor and Viewer; dashboard redirect per role; route inventory now requires `onboarded` |
+
+Tenant isolation checklist (0.2 AR-14): `CompanyLocation` — only reachable through the signed-in user's company; no identifier is accepted from the request; Editors and Viewers are denied (403, tested). `Company` — unchanged from 2.3.
