@@ -7,10 +7,10 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 1 — Foundation |
-| Last approved task | 1.11 Platform Admin Foundation (2026-11-02) |
-| Current task | 1.13 Dashboard Shell & Branding |
+| Last approved task | 1.13 Dashboard Shell & Branding (2026-11-02) |
+| Current task | 1.12 Localization Foundation |
 | Next task | Deferred Phase 1 tasks (owner to choose the order) |
-| Deferred | 1.4, 1.5, 1.9, 1.10, 1.12 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5, E-8, E-9, E-11) |
+| Deferred | 1.4, 1.5, 1.9, 1.10 (owner decision; required before Phase 2, see exit criteria E-2, E-4, E-5, E-8, E-9) |
 
 ## Phase 1 tasks
 
@@ -27,8 +27,8 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 1.9 | Security Headers Baseline | Deferred | — |
 | 1.10 | Production Configuration Guardrails | Deferred | — |
 | 1.11 | Platform Admin Foundation | Approved | `270a392` (PR #10) |
-| 1.12 | Localization Foundation | Deferred | — |
-| 1.13 | Dashboard Shell & Branding | In review | — |
+| 1.12 | Localization Foundation | In review | — |
+| 1.13 | Dashboard Shell & Branding | Approved | `d25aa57`, `206d3ba` (PR #14) |
 
 ## Task 1.1 — Baseline Validation (2026-10-30)
 
@@ -149,3 +149,21 @@ magick -background none -density 576 public/favicon.svg -define icon:auto-resize
 sed 's/ rx="7"//' public/favicon.svg > /tmp/apple-touch-icon.svg
 magick -density 864 /tmp/apple-touch-icon.svg -resize 180x180 -background '#18181b' -alpha remove -alpha off -strip -depth 8 public/apple-touch-icon.png
 ```
+
+## Task 1.12 — Localization Foundation (2026-11-03)
+
+| Change | Detail |
+|---|---|
+| Languages | `app.supported_locales` (`en` English, `tr` Türkçe); default `APP_LOCALE=en` |
+| Translations | Short keys in one folder per language, plus one JSON file per translated language for package strings. `lang/en/{auth,pagination,passwords,validation}.php` are Laravel's published files (safe to overwrite with `lang:publish --force`); `lang/tr/` mirrors them by hand. Application lines use short keys in `common` and `pages` (the authentication and settings pages are its `authentication` and `settings` sections); the 28 strings Laravel, Fortify and Flux pass by their English text (error page titles, notification emails, Fortify messages, Flux labels) are translated in `lang/tr.json` with that text as the key, as Laravel documents; English needs no JSON file. A 404 under a locale prefix is shown in that language without storing it. Terminology: "şifre" for password, "Panel" for Dashboard |
+| Hard-coded text | `OTP Code` labels go through `__()`; Livewire page titles are translated in each component's `render()` |
+| Selection (OD-6) | `SetLocale` (web group, platform host only; tenant hosts are left alone): URL prefix → user's `users.locale` → `locale` cookie → default; a 404 under a locale prefix is shown in that language; sets Fortify's `home` (`/{locale}/dashboard`). Livewire updates take the page's language from the checksummed component snapshot (`SupportLocales`). A language is stored (signed-in user's preference and visitor cookie) only when a page with a locale prefix is opened by a GET top-level navigation (`Sec-Fetch-Mode: navigate`, `Sec-Fetch-Dest: document`) with `Sec-Fetch-Site` `none` or `same-origin`, and without `Sec-Purpose` unless it is a prerender started from the address bar (Chrome shows it without a new request); links from other sites (including same-site tenant subdomains), prefetches, scripts, Livewire requests, unprefixed redirects and requests without fetch metadata store nothing. Links opened from email or chat apps send `Sec-Fetch-Site: none` like the address bar and do count. Unprefixed file paths (`/wp-login.php`, `/.env`) return 404 without a redirect. `URL::defaults(['locale' => …])` follows every locale change (`LocaleUpdated`), so email links use the email's language. Livewire page titles are translated in each component's `render()`; the layout prints titles as given |
+| Accepted values | `App\Actions\Localization\UpdateLocalePreference` is the single allow-list (`supportedLocales`, `isSupported`, `rules`) and the only place that stores a choice (`handle`) (user preference + cookie); used by the middleware, `User::preferredLocale()` and the settings page, and mirrored by the `{locale}` route pattern. Unsupported prefixes never match a page; unsupported cookie or stored values fall back to `en`; unsupported submitted values are rejected. The cookie is encrypted and signed by Laravel, so it cannot be forged without `APP_KEY` |
+| Routes | Every platform page has the locale prefix: home, Fortify (`fortify.prefix = {locale}`), dashboard and settings (`/en/login`, `/tr/dashboard`, `/en/settings/profile`). `Route::pattern('locale', 'en|tr')` applies to all of them. `/` and any other unprefixed GET path redirect to the same path and query in the request language (`RedirectToLocalizedPathController`, fallback route); unprefixed non-GET requests get 405; paths under an unsupported prefix end in 404. `/up`, Livewire and Flux endpoints stay unprefixed |
+| Preference | Migration `users.locale` (`varchar(8)`, nullable); set at registration from the page language, by opening a page in another language and in Settings → Appearance; `User` implements `HasLocalePreference`, so password reset and verification emails use it |
+| Switchers | Links to the same page in the other language on the home and authentication pages; a language select in Settings → Appearance that moves to the same page in the chosen language |
+| Tests | Prefix rendering, unsupported prefixes, root and unprefixed redirects (cookie, stored preference, query string), storing the URL language for typed and same-origin navigation but not for cross-site, same-site, prefetch, script or header-less requests (preference and cookie), switcher links (query strings as sent, signed URLs to the home page), Livewire updates in the page's language without storing it, boot failure for an unsupported `APP_LOCALE`, settings field, registration language, email language and email link language (including unsupported stored values such as `tr/..`), tenant-host isolation of prefixed routes, and translation completeness (every used key defined in `en`, every language folder mirroring `en`, every string the used Laravel, Fortify and Flux views and classes pass to `__()` translated in each JSON file (with a list of strings of unused components), no JSON line the packages no longer render) |
+| Applied to | Local development database `firmhub` (rollback → migrate verified) |
+| Checked in the browser | `/dashboard` → `/en/login` as a guest; after login `/en/dashboard`; typed `/tr/dashboard` opens Turkish and makes `/dashboard` redirect to `/tr/dashboard`; on `/tr/settings/profile` with the stored preference set to `en`, a Livewire validation error is shown in Turkish and the preference stays `en`; no console errors |
+
+Residual risks: Turkish texts are machine-assisted and should be reviewed by a native speaker before launch; Flux strings of Pro components and Laravel strings not used by the application are not translated. Open follow-up (owner, 2026-11-04): `RedirectToLocalizedPathController` answers 404 for any unprefixed path whose last segment contains a dot, so once pages take domain names as path segments (Phase 5 custom domains, e.g. `/sites/example.com`) an unprefixed link would 404 instead of redirecting; narrow the rule (known file extensions or names starting with a dot) before such routes are added.

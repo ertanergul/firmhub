@@ -62,10 +62,11 @@ return [
     | The host of the application URL. Platform routes only answer on this
     | host, and company sites are served on its single-label subdomains
     | (e.g. acme.firmhub.com). Any other host is rejected outside local.
+    | Hosts are case-insensitive, so it is kept in lower case.
     |
     */
 
-    'host' => parse_url((string) env('APP_URL'), PHP_URL_HOST) ?: 'localhost',
+    'host' => strtolower(parse_url((string) env('APP_URL'), PHP_URL_HOST) ?: 'localhost'),
 
     /*
     |--------------------------------------------------------------------------
@@ -96,6 +97,22 @@ return [
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Supported Locales
+    |--------------------------------------------------------------------------
+    |
+    | The platform languages, keyed by locale with their name in that language.
+    | Every platform page carries the locale as a URL prefix; unprefixed paths
+    | redirect to the user's preference or the visitor's last choice (OD-6).
+    |
+    */
+
+    'supported_locales' => [
+        'en' => 'English',
+        'tr' => 'Türkçe',
+    ],
 
     /*
     |--------------------------------------------------------------------------

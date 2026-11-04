@@ -13,7 +13,7 @@
             {{-- Company sections (site, media, messages, company, members; 0.5 §10) are added as groups here once their pages exist. --}}
             <flux:sidebar.nav>
                 <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('Dashboard') }}
+                    {{ __('common.dashboard') }}
                 </flux:sidebar.item>
             </flux:sidebar.nav>
 
@@ -55,7 +55,7 @@
 
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
-                            {{ __('Settings') }}
+                            {{ __('common.settings') }}
                         </flux:menu.item>
                     </flux:menu.radio.group>
 
@@ -70,7 +70,7 @@
                             class="w-full cursor-pointer"
                             data-test="logout-button"
                         >
-                            {{ __('Log out') }}
+                            {{ __('common.log_out') }}
                         </flux:menu.item>
                     </form>
                 </flux:menu>

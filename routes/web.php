@@ -1,13 +1,20 @@
 <?php
 
+use App\Http\Controllers\RedirectToLocalizedPathController;
 use Illuminate\Support\Facades\Route;
 
 Route::domain(config('app.host'))->group(function () {
-    Route::view('/', 'welcome')->name('home');
+    Route::prefix('{locale}')->group(function () {
+        Route::view('/', 'welcome')->name('home');
 
-    Route::middleware(['auth', 'verified'])->group(function () {
-        Route::view('dashboard', 'dashboard')->name('dashboard');
+        Route::middleware(['auth', 'verified'])->group(function () {
+            Route::view('dashboard', 'dashboard')->name('dashboard');
+        });
+
+        require __DIR__.'/settings.php';
     });
 
-    require __DIR__.'/settings.php';
+    Route::get('/', RedirectToLocalizedPathController::class)->name('root');
+
+    Route::fallback(RedirectToLocalizedPathController::class);
 });

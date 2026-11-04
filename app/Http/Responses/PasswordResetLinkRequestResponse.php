@@ -20,7 +20,7 @@ class PasswordResetLinkRequestResponse implements FailedPasswordResetLinkRequest
      */
     public function toResponse($request): Response
     {
-        $message = __('If an account exists for that email address, a password reset link has been sent.');
+        $message = __('pages.authentication.forgot_password.link_sent');
 
         return $request->wantsJson()
             ? new JsonResponse(['message' => $message], 200)
