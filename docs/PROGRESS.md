@@ -6,11 +6,11 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 
 | | |
 |---|---|
-| Phase | 1 — Foundation |
-| Last approved task | 1.12 Localization Foundation (2026-11-04) |
-| Current task | 1.4 CI & Dependency Automation |
-| Next task | Deferred Phase 1 tasks (owner to choose the order) |
-| Deferred | 1.5, 1.9, 1.10 (owner decision; required before Phase 2, see exit criteria E-2, E-8, E-9) |
+| Phase | 2 — Companies & Tenancy (proof of concept) |
+| Last approved task | 1.4 CI & Dependency Automation (2026-11-04) |
+| Current task | 2.0 Phase 1 Closure & Phase 2 Plan |
+| Next task | 2.1 Industry Catalog |
+| Deferred | Phase 1: 1.5, 1.9, 1.10 (Phase 1 closed with exceptions; required before Phase 7). Phase 2: 2.6, 2.7, 2.8, 2.10 (after the proof of concept) |
 
 ## Phase 1 tasks
 
@@ -19,7 +19,7 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 1.1 | Baseline Validation | Approved | — (validation only) |
 | 1.2 | Project Documentation & Identity | Approved | `0d0a041` (PR #3) |
 | 1.3 | Frontend Toolchain Remediation | Approved | `80e35bc` (PR #4) |
-| 1.4 | CI & Dependency Automation | In progress | — |
+| 1.4 | CI & Dependency Automation | Approved | `20ec73c` (PR #18) |
 | 1.5 | Test Foundation | Deferred | — |
 | 1.6 | Authentication Hardening | Approved | `c031045` (PR #5) |
 | 1.7 | Case-Insensitive Email Uniqueness | Approved | `14f86f9` (PR #8) |
@@ -29,6 +29,23 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | 1.11 | Platform Admin Foundation | Approved | `270a392` (PR #10) |
 | 1.12 | Localization Foundation | Approved | `62203db` (PR #16) |
 | 1.13 | Dashboard Shell & Branding | Approved | `d25aa57`, `206d3ba` (PR #14) |
+
+
+## Phase 2 tasks
+
+| Task | Name | Status | Commit |
+|---|---|---|---|
+| 2.0 | Phase 1 Closure & Phase 2 Plan | In review | — |
+| 2.1 | Industry Catalog | Not started | — |
+| 2.2 | Companies & Owner Membership | Not started | — |
+| 2.3 | Dashboard Authorization | Not started | — |
+| 2.4 | Company Onboarding | Not started | — |
+| 2.5 | Company Profile | Not started | — |
+| 2.6 | Company Switcher | Deferred (after the proof of concept) | — |
+| 2.7 | Member Management | Deferred (after the proof of concept) | — |
+| 2.8 | Invitations | Deferred (after the proof of concept) | — |
+| 2.9 | Account Deletion Guard | Not started | — |
+| 2.10 | Company Deletion Lifecycle | Deferred (after the proof of concept) | — |
 
 ## Task 1.1 — Baseline Validation (2026-10-30)
 
