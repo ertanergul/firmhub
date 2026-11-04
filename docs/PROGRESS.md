@@ -212,4 +212,5 @@ Not verified here: the workflow run on GitHub and Dependabot's acceptance of the
 | Model | `Industry` with the `offered()` scope (active industries in display order) and `label()` (name in the current language); deactivated, never deleted |
 | Catalog | `IndustrySeeder` with three industries for the proof of concept: `retail`, `legal`, `other`; adds missing industries and keeps the order, leaves the active state of existing ones; called from `DatabaseSeeder` and documented in the README for every deployment |
 | Labels | `lang/en/industries.php` (Retail, Legal Services, Other) and `lang/tr/industries.php` (Perakende, Hukuk Hizmetleri, Diğer), keyed by slug (0.3 D-8) |
+| Applied to | Local development database `firmhub`: migration run and `IndustrySeeder` seeded (owner approval, 2026-11-04) |
 | Tests | Unique slug and slug format on PostgreSQL; seeder order and idempotence; deactivated industries stay hidden; `offered()` filtering and order; label in the current language; every seeded industry labelled in every language (plus the existing language-folder parity test) |
