@@ -7,9 +7,9 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 | | |
 |---|---|
 | Phase | 2 — Companies & Tenancy (proof of concept) |
-| Last approved task | 2.1 Industry Catalog (2026-11-04) |
-| Current task | 2.2 Companies & Owner Membership |
-| Next task | 2.3 Dashboard Authorization |
+| Last approved task | 2.2 Companies & Owner Membership (2026-11-04) |
+| Current task | 2.3 Dashboard Authorization |
+| Next task | 2.4 Company Onboarding (contact details, location, completion) |
 | Deferred | Phase 1: 1.5, 1.9, 1.10 (Phase 1 closed with exceptions; required before Phase 7). Phase 2: 2.6, 2.7, 2.8, 2.10 (after the proof of concept) |
 
 ## Phase 1 tasks
@@ -37,8 +37,8 @@ Status of every task, updated at each checkpoint. Plan and acceptance criteria: 
 |---|---|---|---|
 | 2.0 | Phase 1 Closure & Phase 2 Plan | Approved | `7a213fb` (PR #19) |
 | 2.1 | Industry Catalog | Approved | `94b9553`, `dd4681b` |
-| 2.2 | Companies & Owner Membership | In review | — |
-| 2.3 | Dashboard Authorization | Not started | — |
+| 2.2 | Companies & Owner Membership | Approved | `d15348c` |
+| 2.3 | Dashboard Authorization | In review | — |
 | 2.4 | Company Onboarding | Not started | — |
 | 2.5 | Company Profile | Not started | — |
 | 2.6 | Company Switcher | Deferred (after the proof of concept) | — |
@@ -226,3 +226,17 @@ Not verified here: the workflow run on GitHub and Dependabot's acceptance of the
 | `CreateCompany` | `App\Actions\Company\CreateCompany::handle($owner, $name, $industry)`: verified owners only (403 otherwise), active industries only, one company per user; company and Owner membership in one transaction; a membership created by a simultaneous request makes the unique constraint fail and returns the same validation error; the contact email starts as the owner's email |
 | Applied to | Local development database `firmhub` (owner approval, 2026-11-04) |
 | Tests | PostgreSQL constraints (lower-case email, year range, industry `RESTRICT` → SQLSTATE `23001`, role values, one company per user, cascades); the action's success, unverified, inactive-industry, existing-company and simultaneous-request cases (company rolled back); mass assignment; contact email lower-casing; the role × permission matrix written out in the test (0.9 §4.2) and the role ranking |
+
+## Task 2.3 — Dashboard Authorization (2026-11-04)
+
+| Change | Detail |
+|---|---|
+| Company context | `User::company()` (`HasOneThrough` over the user's only membership); the company is always read from the signed-in user, never from request or Livewire state (0.2 AR-4, AR-5) |
+| Middleware | `EnsureCompanyMembership` (alias `company`) on `/{locale}/dashboard`: users without a company are redirected to onboarding |
+| Policy | `App\Policies\CompanyPolicy` (`view`, `update`, `changeIndustry`, `completeOnboarding`, `delete`), auto-discovered; each check loads the user's membership in that company from the database and asks `CompanyRole::grants()` (0.2 RM-7) |
+| Onboarding, first step | `/{locale}/onboarding` (`auth`, `verified`; Livewire page with the `layouts::auth` layout): company name and an offered industry (labels in the page language), validated, then `CreateCompany`; users who already have a company go to the dashboard; logout button. Moved from 2.4 so the middleware's redirect has a destination (owner approval) |
+| Dashboard | Heading shows the company name; the sidebar shows it above the navigation |
+| Test helpers | `memberOf($company, $role, $attributes)` and `companyOwner($attributes)` in `tests/Pest.php` (0.9 §4.3) |
+| Tests | Dashboard: guest, unverified, no company, every role sees its own company and not another one; route inventory: every `{locale}/dashboard…` route has `auth`, `verified` and `company` (feature test, no `Arch` suite); policy matrix written out per role, no abilities without a membership or in another company, role changes apply on the next check; onboarding: guest, unverified, active industries in Turkish in order, creation and redirect, validation (missing or too long name, inactive or unknown industry), redirect for users with a company. Existing dashboard tests now use users with a company |
+
+Tenant isolation checklist (0.2 AR-14): `Company` — read: a member of another company sees only their own company on the dashboard and has no policy ability on the other one; update and delete: no UI yet, denied by the policy for non-members (tested). `CompanyMembership` — not reachable through any route yet.

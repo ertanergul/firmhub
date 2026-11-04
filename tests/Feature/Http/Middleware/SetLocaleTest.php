@@ -65,7 +65,7 @@ test('unprefixed paths redirect signed-in users to their stored language', funct
 });
 
 test('opening a page in another language stores it as the user\'s preference', function (array $headers) {
-    $user = User::factory()->create(['locale' => 'tr']);
+    $user = companyOwner(['locale' => 'tr']);
 
     $this->actingAs($user)
         ->withHeaders($headers)
@@ -81,7 +81,7 @@ test('opening a page in another language stores it as the user\'s preference', f
 ]);
 
 test('opening a page stores its language for the user even when the visitor already chose it', function () {
-    $user = User::factory()->create(['locale' => 'tr']);
+    $user = companyOwner(['locale' => 'tr']);
 
     $this->actingAs($user)
         ->withCookie(UpdateLocalePreference::COOKIE, 'en')
@@ -93,7 +93,7 @@ test('opening a page stores its language for the user even when the visitor alre
 });
 
 test('pages not opened by the user show the language without storing it', function (array $headers) {
-    $user = User::factory()->create(['locale' => 'tr']);
+    $user = companyOwner(['locale' => 'tr']);
 
     $this->actingAs($user)
         ->withHeaders($headers)

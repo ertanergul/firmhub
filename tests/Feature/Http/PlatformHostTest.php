@@ -31,7 +31,7 @@ test('the livewire update endpoint only matches the platform host', function () 
 });
 
 test('platform pages are reachable on the platform host', function () {
-    $user = User::factory()->create();
+    $user = companyOwner();
 
     $this->get('http://localhost/en/login')->assertOk();
     $this->actingAs($user)->get('http://localhost/en/dashboard')->assertOk();

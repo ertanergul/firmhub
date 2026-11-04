@@ -1,5 +1,9 @@
 <?php
 
+use App\Enums\CompanyRole;
+use App\Models\Company;
+use App\Models\CompanyMembership;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -61,4 +65,28 @@ function pageOpenedFrom(string $fetchSite): array
         'Sec-Fetch-Mode' => 'navigate',
         'Sec-Fetch-Dest' => 'document',
     ];
+}
+
+/**
+ * Create a user who is a member of the company with the given role (0.9 §4.3).
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function memberOf(Company $company, CompanyRole $role, array $attributes = []): User
+{
+    $user = User::factory()->create($attributes);
+
+    CompanyMembership::factory()->role($role)->for($company)->for($user)->create();
+
+    return $user;
+}
+
+/**
+ * Create a user who owns a new company.
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function companyOwner(array $attributes = []): User
+{
+    return memberOf(Company::factory()->create(), CompanyRole::Owner, $attributes);
 }
